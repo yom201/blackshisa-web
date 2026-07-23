@@ -1,0 +1,16 @@
+{
+  "name": "BlackShisa",
+  "short_name": "BlackShisa",
+  "description": "Smartphone-based parked-car evidence recording.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030303",
+  "theme_color": "#030303",
+  "icons": [
+    {
+      "src": "/assets/img/blackshisa-logo.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg"
+    }
+  ]
+}
