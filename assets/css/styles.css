@@ -97,7 +97,7 @@ p {
   border-radius: 8px;
 }
 
-.brand span {
+.brand-tagline {
   color: var(--gold);
   font-size: 0.72em;
   letter-spacing: 0.08em;
@@ -1532,27 +1532,55 @@ body.legal-page::before {
 @media (max-width: 640px) {
   .nav {
     width: min(100% - 22px, var(--max));
+    gap: 6px;
   }
 
   .brand {
-    font-size: 0.8rem;
-    letter-spacing: 0.12em;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 8px;
+    row-gap: 1px;
+    font-size: 0.75rem;
+    line-height: 1;
+    letter-spacing: 0.1em;
   }
 
-  .brand span {
+  .brand img {
+    grid-row: 1 / span 2;
+    width: 28px;
+    height: 28px;
+  }
+
+  .brand-tagline {
+    grid-column: 2;
+    display: block;
+    font-size: 0.62rem;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+  }
+
+  .brand-separator {
     display: none;
   }
 
   .nav-links {
-    gap: 8px;
+    flex-shrink: 0;
+    gap: 6px;
   }
 
   .legal-nav-links {
     font-size: 0.78rem;
   }
 
+  .language-switch {
+    gap: 2px;
+    padding: 3px;
+  }
+
   .language-switch a {
-    padding: 5px 8px;
+    padding: 4px 5px;
+    font-size: 0.7rem;
   }
 
   .hero {
