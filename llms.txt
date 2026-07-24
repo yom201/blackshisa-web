@@ -1,11 +1,11 @@
-# BlackShisa - Parking Dashcam
+# BlackShisa - Parking Dashcam App
 
-> BlackShisa - Parking Dashcam is a smartphone app that turns a parked car's phone into a
+> BlackShisa - Parking Dashcam App is a smartphone app that turns a parked car's phone into a
 > surveillance camera, capturing evidence (readable license plates and faces)
 > of hit-and-run, door dings, and vandalism while the vehicle is parked.
 
 ## Overview
-BlackShisa - Parking Dashcam detects motion, sound, and impact while your car is parked,
+BlackShisa - Parking Dashcam App detects motion, sound, and impact while your car is parked,
 records video evidence, and can automatically back up detections to Google
 Drive and notify you by Gmail.
 

@@ -1,6 +1,6 @@
 {
-  "name": "BlackShisa - Parking Dashcam",
-  "short_name": "BlackShisa - Parking Dashcam",
+  "name": "BlackShisa - Parking Dashcam App",
+  "short_name": "BlackShisa - Parking Dashcam App",
   "description": "Smartphone-based parked-car evidence recording.",
   "start_url": "/",
   "display": "standalone",
