@@ -759,6 +759,69 @@ h2 {
   height: auto;
 }
 
+.security-light-link-section {
+  padding-top: 16px;
+}
+
+.security-light-teaser {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  min-height: 480px;
+  overflow: hidden;
+  border: 1px solid rgba(242, 210, 122, 0.32);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(212, 166, 64, 0.17), transparent 28rem),
+    #080808;
+  box-shadow: var(--shadow);
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.security-light-teaser:hover,
+.security-light-teaser:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(242, 210, 122, 0.65);
+}
+
+.security-light-teaser-copy {
+  align-self: center;
+  padding: clamp(34px, 6vw, 72px);
+}
+
+.security-light-teaser h2 {
+  margin-top: 14px;
+  font-size: clamp(2.4rem, 4.8vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.security-light-teaser-copy > p:not(.kicker) {
+  width: min(100%, 650px);
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 1.02rem;
+}
+
+.security-light-teaser-cta {
+  display: inline-flex;
+  margin-top: 28px;
+  color: var(--gold-bright);
+  font-weight: 800;
+}
+
+.security-light-teaser-image {
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.security-light-teaser-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .feature-card h3,
 .limit-item h3 {
   font-size: 1.24rem;
@@ -1480,10 +1543,15 @@ body.legal-page::before {
 
   .setup-copy,
   .product-stage,
+  .security-light-teaser,
   .faq,
   .guide-hero-grid,
   .guide-layout {
     grid-template-columns: 1fr;
+  }
+
+  .security-light-teaser-image {
+    min-height: 360px;
   }
 
   .setup-copy .lede {
@@ -1702,6 +1770,14 @@ body.legal-page::before {
 
   .privacy-band {
     padding: 34px 22px;
+  }
+
+  .security-light-teaser-copy {
+    padding: 34px 22px;
+  }
+
+  .security-light-teaser-image {
+    min-height: 260px;
   }
 
   .footer-inner {
