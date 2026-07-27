@@ -562,12 +562,6 @@ h2 {
   color: rgba(247, 244, 234, 0.83);
 }
 
-.proof-item span.proof-note {
-  margin-top: 8px;
-  font-size: 0.78rem;
-  color: rgba(247, 244, 234, 0.55);
-}
-
 .product-stage {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
