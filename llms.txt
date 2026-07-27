@@ -26,5 +26,6 @@ Drive and notify you by Gmail.
 - Parked car monitoring app: https://blackshisa.com/parked-car-monitoring-app.html
 
 ## Resources
+- Google Play (Android): https://play.google.com/store/apps/details?id=app.blackshisa.blackShisaApp
 - Sitemap: https://blackshisa.com/sitemap.xml
 - Robots: https://blackshisa.com/robots.txt
