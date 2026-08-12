@@ -1,0 +1,486 @@
+#!/usr/bin/env python3
+"""Deterministic local integrity checks for the BlackShisa static site."""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+import urllib.parse
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
+from html.parser import HTMLParser
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+ORIGIN = "https://blackshisa.com"
+VERIFICATION_PAGE = "googlec9b4c510fa66e954.html"
+FORBIDDEN_FOCUSED_PATHS = (
+    "seo/generate.py",
+    "seo/topics.json",
+    "seo/SPEC.md",
+    "tool/check_seo.py",
+    ".github/workflows/seo.yml",
+    "worklog.yaml",
+)
+EXPECTED_PUBLIC_URLS = {
+    f"{ORIGIN}/",
+    f"{ORIGIN}/de/",
+    f"{ORIGIN}/es/",
+    f"{ORIGIN}/ja/",
+    f"{ORIGIN}/security-light.html",
+    f"{ORIGIN}/de/security-light.html",
+    f"{ORIGIN}/es/security-light.html",
+    f"{ORIGIN}/ja/security-light.html",
+    f"{ORIGIN}/parking-mode-app.html",
+    f"{ORIGIN}/de/parking-mode-app.html",
+    f"{ORIGIN}/es/parking-mode-app.html",
+    f"{ORIGIN}/ja/parking-mode-app.html",
+    f"{ORIGIN}/parking-lot-hit-and-run-evidence.html",
+    f"{ORIGIN}/ja/parking-lot-hit-and-run-evidence.html",
+    f"{ORIGIN}/dash-cam-parking-mode-alternative.html",
+    f"{ORIGIN}/ja/dash-cam-parking-mode-alternative.html",
+    f"{ORIGIN}/door-ding-evidence.html",
+    f"{ORIGIN}/car-vandalism-evidence.html",
+    f"{ORIGIN}/spare-phone-car-security-camera.html",
+    f"{ORIGIN}/parked-car-monitoring-app.html",
+    f"{ORIGIN}/privacy-policy.html",
+    f"{ORIGIN}/eula.html",
+}
+
+
+def alternate_cluster(**languages: str) -> dict[str, str]:
+    return {**languages, "x-default": languages["en-US"]}
+
+
+ALTERNATE_CLUSTERS = (
+    alternate_cluster(
+        **{
+            "en-US": f"{ORIGIN}/",
+            "de-DE": f"{ORIGIN}/de/",
+            "es-ES": f"{ORIGIN}/es/",
+            "ja-JP": f"{ORIGIN}/ja/",
+        }
+    ),
+    alternate_cluster(
+        **{
+            "en-US": f"{ORIGIN}/security-light.html",
+            "de-DE": f"{ORIGIN}/de/security-light.html",
+            "es-ES": f"{ORIGIN}/es/security-light.html",
+            "ja-JP": f"{ORIGIN}/ja/security-light.html",
+        }
+    ),
+    alternate_cluster(
+        **{
+            "en-US": f"{ORIGIN}/parking-mode-app.html",
+            "de-DE": f"{ORIGIN}/de/parking-mode-app.html",
+            "es-ES": f"{ORIGIN}/es/parking-mode-app.html",
+            "ja-JP": f"{ORIGIN}/ja/parking-mode-app.html",
+        }
+    ),
+    alternate_cluster(
+        **{
+            "en-US": f"{ORIGIN}/parking-lot-hit-and-run-evidence.html",
+            "ja-JP": f"{ORIGIN}/ja/parking-lot-hit-and-run-evidence.html",
+        }
+    ),
+    alternate_cluster(
+        **{
+            "en-US": f"{ORIGIN}/dash-cam-parking-mode-alternative.html",
+            "ja-JP": f"{ORIGIN}/ja/dash-cam-parking-mode-alternative.html",
+        }
+    ),
+)
+EXPECTED_ALTERNATES = {url: {} for url in EXPECTED_PUBLIC_URLS}
+for _cluster in ALTERNATE_CLUSTERS:
+    for _url in _cluster.values():
+        EXPECTED_ALTERNATES[_url] = _cluster
+VOID_TAGS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
+
+
+@dataclass
+class Page:
+    path: Path
+    lang: str = ""
+    title: str = ""
+    title_count: int = 0
+    h1_count: int = 0
+    descriptions: list[str] = field(default_factory=list)
+    robots: list[str] = field(default_factory=list)
+    canonicals: list[str] = field(default_factory=list)
+    alternates: dict[str, str] = field(default_factory=dict)
+    duplicate_alternates: list[str] = field(default_factory=list)
+    ids: list[str] = field(default_factory=list)
+    refs: list[tuple[str, str]] = field(default_factory=list)
+    visible_links: list[str] = field(default_factory=list)
+    json_ld: list[str] = field(default_factory=list)
+
+
+class PageParser(HTMLParser):
+    def __init__(self, path: Path) -> None:
+        super().__init__(convert_charrefs=True)
+        self.page = Page(path=path)
+        self._in_title = False
+        self._title_parts: list[str] = []
+        self._json_ld_depth = 0
+        self._json_ld_parts: list[str] = []
+        self._body_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = {key: value or "" for key, value in attrs}
+        if tag == "body":
+            self._body_depth += 1
+        if tag == "html":
+            self.page.lang = values.get("lang", "")
+        if tag == "title":
+            self._in_title = True
+            self.page.title_count += 1
+        if tag == "h1":
+            self.page.h1_count += 1
+        if tag == "meta" and values.get("name", "").lower() == "description":
+            self.page.descriptions.append(values.get("content", "").strip())
+        if tag == "meta" and values.get("name", "").lower() == "robots":
+            self.page.robots.append(values.get("content", "").strip().lower())
+        if tag == "link" and values.get("rel", "").lower() == "canonical":
+            self.page.canonicals.append(values.get("href", "").strip())
+        if tag == "link" and values.get("rel", "").lower() == "alternate":
+            hreflang = values.get("hreflang", "").strip()
+            href = values.get("href", "").strip()
+            if hreflang:
+                if hreflang in self.page.alternates:
+                    self.page.duplicate_alternates.append(hreflang)
+                self.page.alternates[hreflang] = href
+        if values.get("id"):
+            self.page.ids.append(values["id"])
+        for attr in ("href", "src", "data-full", "poster"):
+            if values.get(attr):
+                self.page.refs.append((attr, values[attr]))
+        if tag == "a" and self._body_depth and values.get("href"):
+            self.page.visible_links.append(values["href"])
+        if values.get("srcset"):
+            for candidate in values["srcset"].split(","):
+                url = candidate.strip().split(maxsplit=1)[0]
+                if url:
+                    self.page.refs.append(("srcset", url))
+        if tag == "script" and values.get("type", "").lower() == "application/ld+json":
+            self._json_ld_depth = 1
+            self._json_ld_parts = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "title":
+            self._in_title = False
+        if tag == "script" and self._json_ld_depth:
+            self.page.json_ld.append("".join(self._json_ld_parts).strip())
+            self._json_ld_depth = 0
+            self._json_ld_parts = []
+        if tag == "body" and self._body_depth:
+            self._body_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self._in_title:
+            self._title_parts.append(data)
+        if self._json_ld_depth:
+            self._json_ld_parts.append(data)
+
+    def close(self) -> None:
+        super().close()
+        self.page.title = " ".join("".join(self._title_parts).split())
+
+
+def canonical_for(path: Path) -> str:
+    rel = path.relative_to(ROOT).as_posix()
+    if rel == "index.html":
+        return f"{ORIGIN}/"
+    if rel.endswith("/index.html"):
+        return f"{ORIGIN}/{rel[:-10]}"
+    return f"{ORIGIN}/{rel}"
+
+
+def resolve_local(source: Path, value: str) -> tuple[Path, str] | None:
+    parsed = urllib.parse.urlsplit(value)
+    if value.startswith(("mailto:", "tel:", "data:", "javascript:")):
+        return None
+    same_origin = parsed.netloc == "blackshisa.com" and parsed.scheme in {"", "http", "https"}
+    if (parsed.scheme or parsed.netloc) and not same_origin:
+        return None
+    raw_path = urllib.parse.unquote(parsed.path)
+    if same_origin:
+        raw_path = raw_path or "/"
+        target = (ROOT / raw_path.lstrip("/")).resolve()
+    elif not raw_path:
+        target = source
+    elif raw_path.startswith("/"):
+        target = (ROOT / raw_path.lstrip("/")).resolve()
+    else:
+        target = (source.parent / raw_path).resolve()
+    if raw_path.endswith("/"):
+        target = target / "index.html"
+    return target, urllib.parse.unquote(parsed.fragment)
+
+
+def is_within_root(path: Path) -> bool:
+    try:
+        path.resolve().relative_to(ROOT)
+        return True
+    except ValueError:
+        return False
+
+
+def main() -> int:
+    errors: list[str] = []
+    pages: dict[Path, Page] = {}
+
+    required_files = (
+        "README.md",
+        "docs/SITE_SPEC.md",
+        "CNAME",
+        ".nojekyll",
+        "robots.txt",
+        "sitemap.xml",
+        "llms.txt",
+        "site.webmanifest",
+        VERIFICATION_PAGE,
+    )
+    for relative in required_files:
+        if not (ROOT / relative).is_file():
+            errors.append(f"missing required file: {relative}")
+    for relative in FORBIDDEN_FOCUSED_PATHS:
+        if (ROOT / relative).exists():
+            errors.append(f"focused topology contains a 40-guide-only path: {relative}")
+
+    for path in sorted(ROOT.rglob("*.html")):
+        if ".git" in path.parts:
+            continue
+        parser = PageParser(path)
+        parser.feed(path.read_text(encoding="utf-8"))
+        parser.close()
+        pages[path.resolve()] = parser.page
+
+    public_pages = {
+        path: page
+        for path, page in pages.items()
+        if path.name != VERIFICATION_PAGE
+    }
+    canonical_pages: dict[str, Page] = {}
+
+    for path, page in public_pages.items():
+        rel = path.relative_to(ROOT)
+        if not page.lang:
+            errors.append(f"{rel}: missing html lang")
+        expected_lang = "en-US"
+        if rel.parts[0] in {"de", "es", "ja"}:
+            expected_lang = {"de": "de-DE", "es": "es-ES", "ja": "ja-JP"}[rel.parts[0]]
+        if page.lang != expected_lang:
+            errors.append(f"{rel}: html lang {page.lang!r} != {expected_lang!r}")
+        if page.title_count != 1 or not page.title:
+            errors.append(f"{rel}: expected one non-empty title, found {page.title_count}")
+        if len(page.descriptions) != 1 or not page.descriptions[0]:
+            errors.append(f"{rel}: expected one non-empty meta description")
+        if len(page.robots) != 1 or not {"index", "follow"}.issubset(
+            {part.strip() for part in page.robots[0].split(",")}
+        ):
+            errors.append(f"{rel}: expected one robots meta containing index,follow")
+        if page.h1_count != 1:
+            errors.append(f"{rel}: expected one H1, found {page.h1_count}")
+        if len(page.canonicals) != 1:
+            errors.append(f"{rel}: expected one canonical, found {len(page.canonicals)}")
+        else:
+            expected = canonical_for(path)
+            actual = page.canonicals[0]
+            if actual != expected:
+                errors.append(f"{rel}: canonical {actual!r} != {expected!r}")
+            if actual in canonical_pages:
+                errors.append(f"{rel}: duplicate canonical {actual}")
+            canonical_pages[actual] = page
+        duplicates = sorted({value for value in page.ids if page.ids.count(value) > 1})
+        if duplicates:
+            errors.append(f"{rel}: duplicate IDs {duplicates}")
+        if page.duplicate_alternates:
+            errors.append(f"{rel}: duplicate hreflang values {sorted(set(page.duplicate_alternates))}")
+        for index, raw in enumerate(page.json_ld, 1):
+            try:
+                json.loads(raw)
+            except json.JSONDecodeError as exc:
+                errors.append(f"{rel}: JSON-LD #{index} is invalid: {exc}")
+
+    for path, page in pages.items():
+        rel = path.relative_to(ROOT)
+        for attr, value in page.refs:
+            resolved = resolve_local(path, value)
+            if resolved is None:
+                continue
+            target, fragment = resolved
+            if not is_within_root(target):
+                errors.append(f"{rel}: {attr} target escapes repository: {value}")
+                continue
+            if not target.is_file():
+                errors.append(f"{rel}: {attr} target does not exist: {value}")
+                continue
+            if fragment and target.suffix.lower() == ".html":
+                target_page = pages.get(target.resolve())
+                if target_page is None or fragment not in target_page.ids:
+                    errors.append(f"{rel}: fragment does not exist: {value}")
+
+    for stylesheet in sorted((ROOT / "assets" / "css").glob("*.css")):
+        css = stylesheet.read_text(encoding="utf-8")
+        for value in re.findall(r"url\(\s*['\"]?([^)'\"\s]+)", css):
+            resolved = resolve_local(stylesheet, value)
+            if resolved is None:
+                continue
+            if not is_within_root(resolved[0]):
+                errors.append(f"{stylesheet.relative_to(ROOT)}: CSS url target escapes repository: {value}")
+            elif not resolved[0].is_file():
+                errors.append(f"{stylesheet.relative_to(ROOT)}: CSS url target does not exist: {value}")
+
+    for source_url, page in canonical_pages.items():
+        if page.alternates and source_url not in page.alternates.values():
+            errors.append(f"{page.path.relative_to(ROOT)}: hreflang cluster does not include self")
+        for hreflang, target_url in page.alternates.items():
+            target = canonical_pages.get(target_url)
+            if target is None:
+                errors.append(f"{page.path.relative_to(ROOT)}: hreflang target missing: {hreflang} {target_url}")
+                continue
+            if hreflang != "x-default" and target.lang != hreflang:
+                errors.append(
+                    f"{page.path.relative_to(ROOT)}: hreflang {hreflang} targets lang {target.lang}"
+                )
+            if source_url not in target.alternates.values():
+                errors.append(
+                    f"{page.path.relative_to(ROOT)}: hreflang is not reciprocal: {source_url} -> {target_url}"
+                )
+
+    canonical_set = set(canonical_pages)
+    if canonical_set != EXPECTED_PUBLIC_URLS:
+        missing = sorted(EXPECTED_PUBLIC_URLS - canonical_set)
+        extra = sorted(canonical_set - EXPECTED_PUBLIC_URLS)
+        errors.append(f"site topology differs; missing={missing}, extra={extra}")
+    for url in sorted(canonical_set & EXPECTED_PUBLIC_URLS):
+        if canonical_pages[url].alternates != EXPECTED_ALTERNATES[url]:
+            errors.append(f"{canonical_pages[url].path.relative_to(ROOT)}: hreflang cluster differs from contract")
+
+    root_page = (ROOT / "index.html").resolve()
+    click_depth: dict[Path, int] = {}
+    queue: list[Path] = []
+    if root_page in public_pages:
+        click_depth[root_page] = 0
+        queue.append(root_page)
+    else:
+        errors.append("index.html: missing root page for visible-link traversal")
+    while queue:
+        source = queue.pop(0)
+        for value in pages[source].visible_links:
+            resolved = resolve_local(source, value)
+            if resolved is None:
+                continue
+            target = resolved[0].resolve()
+            if not is_within_root(target):
+                continue
+            if target in public_pages and target not in click_depth:
+                click_depth[target] = click_depth[source] + 1
+                queue.append(target)
+    for path in sorted(set(public_pages) - set(click_depth)):
+        errors.append(f"{path.relative_to(ROOT)}: not reachable through visible links from home")
+    for path, depth in sorted(click_depth.items()):
+        if path in public_pages and depth > 2:
+            errors.append(f"{path.relative_to(ROOT)}: visible-link depth is {depth}, expected at most 2")
+
+    sitemap_path = ROOT / "sitemap.xml"
+    try:
+        sitemap = ET.parse(sitemap_path)
+        namespaces = {
+            "s": "http://www.sitemaps.org/schemas/sitemap/0.9",
+            "xhtml": "http://www.w3.org/1999/xhtml",
+        }
+        sitemap_urls: dict[str, dict[str, str]] = {}
+        for node in sitemap.findall("s:url", namespaces):
+            loc = node.findtext("s:loc", default="", namespaces=namespaces).strip()
+            if not loc:
+                errors.append("sitemap.xml: url without loc")
+                continue
+            if loc in sitemap_urls:
+                errors.append(f"sitemap.xml: duplicate loc {loc}")
+            sitemap_urls[loc] = {
+                link.attrib.get("hreflang", ""): link.attrib.get("href", "")
+                for link in node.findall("xhtml:link", namespaces)
+            }
+        sitemap_set = set(sitemap_urls)
+        for url in sorted(canonical_set - sitemap_set):
+            errors.append(f"sitemap.xml: missing canonical {url}")
+        for url in sorted(sitemap_set - canonical_set):
+            errors.append(f"sitemap.xml: loc has no page {url}")
+        for url in sorted(canonical_set & sitemap_set):
+            expected_alternates = canonical_pages[url].alternates
+            if sitemap_urls[url] != expected_alternates:
+                errors.append(f"sitemap.xml: hreflang differs from HTML for {url}")
+
+        llms_text = (ROOT / "llms.txt").read_text(encoding="utf-8")
+        llms_urls = {
+            value.rstrip(".,;:)")
+            for value in re.findall(r"https://blackshisa\.com[^\s<>\"]*", llms_text)
+        }
+        expected_llms_urls = canonical_set - {
+            f"{ORIGIN}/privacy-policy.html",
+            f"{ORIGIN}/eula.html",
+        }
+        expected_llms_urls |= {f"{ORIGIN}/robots.txt", f"{ORIGIN}/sitemap.xml"}
+        if llms_urls != expected_llms_urls:
+            missing = sorted(expected_llms_urls - llms_urls)
+            extra = sorted(llms_urls - expected_llms_urls)
+            errors.append(f"llms.txt: URL set differs; missing={missing}, extra={extra}")
+    except (ET.ParseError, OSError) as exc:
+        errors.append(f"sitemap.xml: cannot parse: {exc}")
+
+    cname_path = ROOT / "CNAME"
+    if cname_path.is_file() and cname_path.read_text(encoding="utf-8").strip() != "blackshisa.com":
+        errors.append("CNAME: expected blackshisa.com")
+    robots_path = ROOT / "robots.txt"
+    if robots_path.is_file():
+        robots_lines = [
+            line.strip()
+            for line in robots_path.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        expected_robots = ["User-agent: *", "Allow: /", f"Sitemap: {ORIGIN}/sitemap.xml"]
+        if robots_lines != expected_robots:
+            errors.append(f"robots.txt: expected {expected_robots!r}, found {robots_lines!r}")
+    manifest_path = ROOT / "site.webmanifest"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        start = resolve_local(ROOT / "site.webmanifest", str(manifest.get("start_url", "")))
+        if start is None or not is_within_root(start[0]) or not start[0].is_file():
+            errors.append("site.webmanifest: start_url target does not exist")
+        for icon in manifest.get("icons", []):
+            target = resolve_local(ROOT / "site.webmanifest", str(icon.get("src", "")))
+            if target is None or not is_within_root(target[0]) or not target[0].is_file():
+                errors.append(f"site.webmanifest: icon target does not exist: {icon.get('src', '')}")
+    except (json.JSONDecodeError, OSError) as exc:
+        errors.append(f"site.webmanifest: invalid JSON: {exc}")
+
+    if errors:
+        print("SITE CHECK: RED")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+
+    print(f"SITE CHECK: GREEN ({len(public_pages)} public HTML pages)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
