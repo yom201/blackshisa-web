@@ -1,0 +1,27 @@
+# Progress ledger. Git records completion evidence; this file records current work.
+
+- id: SEO-001
+  source: seo/SPEC.md
+  repo: git@github.com:yom201/blackshisa-web.git
+  paths:
+    - seo/SPEC.md
+    - seo/AUDIT-2026-08-12.md
+    - seo/topics.json
+    - seo/generate.py
+    - tool/check_seo.py
+    - .github/workflows/seo.yml
+    - assets/css/styles.css
+    - assets/img/
+    - index.html
+    - ja/index.html
+    - es/index.html
+    - de/index.html
+    - parking-guides.html
+    - ja/parking-guides.html
+    - es/parking-guides.html
+    - de/parking-guides.html
+    - sitemap.xml
+    - llms.txt
+  red: tool/check_seo.py
+  status: doing
+  pr: null

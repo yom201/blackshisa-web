@@ -1324,6 +1324,36 @@ body.legal-page::before {
     linear-gradient(180deg, #050505 0%, #030303 48%, #080808 100%);
 }
 
+.guide-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 28px;
+  color: rgba(247, 244, 234, 0.62);
+  font-size: 0.86rem;
+}
+
+.guide-breadcrumb a {
+  color: var(--gold-bright);
+}
+
+.guide-updated {
+  margin-top: 18px;
+  color: rgba(247, 244, 234, 0.58);
+  font-size: 0.86rem;
+}
+
+.guide-hub-hero h1 {
+  width: min(100%, 1000px);
+  margin-top: 14px;
+  font-size: clamp(3rem, 7.2vw, 7.2rem);
+  line-height: 0.92;
+}
+
+.guide-cta-section {
+  padding-top: 0;
+}
+
 .guide-hero {
   padding: 86px 0 58px;
   overflow: hidden;
@@ -1480,7 +1510,7 @@ body.legal-page::before {
 
 .guide-related-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1802,6 +1832,10 @@ body.legal-page::before {
 
   .guide-hero {
     padding: 58px 0 34px;
+  }
+
+  .guide-breadcrumb {
+    padding-top: 20px;
   }
 
   .guide-hero-copy h1 {

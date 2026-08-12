@@ -1,35 +1,71 @@
 # BlackShisa - Parking Dashcam App
 
-> BlackShisa - Parking Dashcam App is a smartphone app that turns a parked car's phone into a
-> surveillance camera, capturing evidence (readable license plates and faces)
-> of hit-and-run, door dings, and vandalism while the vehicle is parked.
+> BlackShisa is a smartphone app for recording event clips around motion, sound, or impact while a car is parked. It can help preserve context, but cannot guarantee that an incident, license plate, or face will be detected or readable.
 
-## Overview
-BlackShisa - Parking Dashcam App detects motion, sound, and impact while your car is parked,
-records video evidence, and can automatically back up detections to Google
-Drive and notify you by Gmail.
+## Product facts
+- Evidence is saved locally first; backup to the user's own Google Drive is optional.
+- Clips include 3 seconds before detection and 10, 30, or 60 seconds after detection.
+- iOS monitoring requires the app in the foreground with the screen on. Android uses a foreground service subject to permissions and device settings.
 
-## Pages
-- English (default): https://blackshisa.com/
+## Main pages
+- English: https://blackshisa.com/
 - 日本語: https://blackshisa.com/ja/
 - Deutsch: https://blackshisa.com/de/
 - Español: https://blackshisa.com/es/
-- Free Car Security Light App: https://blackshisa.com/security-light.html
-- Kostenloses Sicherheitslicht fürs Auto: https://blackshisa.com/de/security-light.html
-- Luz de seguridad gratuita para el coche: https://blackshisa.com/es/security-light.html
-- 無料の車用セキュリティライト: https://blackshisa.com/ja/security-light.html
-- Parking mode app: https://blackshisa.com/parking-mode-app.html
-- 駐車監視アプリ: https://blackshisa.com/ja/parking-mode-app.html
-- Parkmodus-App: https://blackshisa.com/de/parking-mode-app.html
-- App de modo aparcamiento: https://blackshisa.com/es/parking-mode-app.html
-- Parking lot hit-and-run evidence: https://blackshisa.com/parking-lot-hit-and-run-evidence.html
-- Door ding evidence: https://blackshisa.com/door-ding-evidence.html
-- Car vandalism evidence: https://blackshisa.com/car-vandalism-evidence.html
-- Spare phone car security camera: https://blackshisa.com/spare-phone-car-security-camera.html
-- Dash cam parking mode alternative: https://blackshisa.com/dash-cam-parking-mode-alternative.html
-- Parked car monitoring app: https://blackshisa.com/parked-car-monitoring-app.html
+
+## English parking guides
+- Guide hub: https://blackshisa.com/parking-guides.html
+- How a Parking Mode App Works with a Spare Phone | BlackShisa: https://blackshisa.com/parking-mode-app.html
+- Parking Lot Hit-and-Run Camera App for Evidence | BlackShisa: https://blackshisa.com/parking-lot-hit-and-run-evidence.html
+- Door Ding Camera App for Parked Cars | BlackShisa: https://blackshisa.com/door-ding-evidence.html
+- Car Vandalism Camera App for Parked-Car Evidence | BlackShisa: https://blackshisa.com/car-vandalism-evidence.html
+- Use a Spare Phone as a Car Security Camera | BlackShisa: https://blackshisa.com/spare-phone-car-security-camera.html
+- Dash Cam Parking Mode Alternative | BlackShisa: https://blackshisa.com/dash-cam-parking-mode-alternative.html
+- Parked Car Monitoring App for iPhone and Android | BlackShisa: https://blackshisa.com/parked-car-monitoring-app.html
+- Where to Place a Camera in a Parked Car | BlackShisa: https://blackshisa.com/parked-car-camera-placement.html
+- Motion, Sound and Impact Detection for Parked Cars | BlackShisa: https://blackshisa.com/parking-camera-detection-guide.html
+- Spare-Phone Parking Camera: Battery, Heat and Safety | BlackShisa: https://blackshisa.com/spare-phone-parking-camera-safety.html
+
+## 日本語の駐車監視ガイド
+- Guide hub: https://blackshisa.com/ja/parking-guides.html
+- スマホで駐車監視する方法と注意点 | BlackShisa: https://blackshisa.com/ja/parking-mode-app.html
+- 駐車中の当て逃げ対策｜証拠を残すカメラアプリ: https://blackshisa.com/ja/parking-lot-hit-and-run-evidence.html
+- ドアパンチの証拠を残す駐車監視カメラ: https://blackshisa.com/ja/door-ding-evidence.html
+- 車へのいたずらを記録する駐車監視カメラ: https://blackshisa.com/ja/car-vandalism-evidence.html
+- 余ったスマホを車の防犯カメラとして使う方法: https://blackshisa.com/ja/spare-phone-car-security-camera.html
+- ドラレコの駐車監視はスマホで代用できる？: https://blackshisa.com/ja/dash-cam-parking-mode-alternative.html
+- iPhone・Androidの駐車監視アプリの違い: https://blackshisa.com/ja/parked-car-monitoring-app.html
+- 駐車監視カメラの設置位置と映り込み対策: https://blackshisa.com/ja/parked-car-camera-placement.html
+- 駐車監視の動体・音・衝撃検知の選び方: https://blackshisa.com/ja/parking-camera-detection-guide.html
+- スマホ駐車監視のバッテリー・発熱・安全対策: https://blackshisa.com/ja/spare-phone-parking-camera-safety.html
+
+## Guías en español
+- Guide hub: https://blackshisa.com/es/parking-guides.html
+- Cómo funciona el modo aparcamiento con un móvil | BlackShisa: https://blackshisa.com/es/parking-mode-app.html
+- Golpean tu coche aparcado y se dan a la fuga | BlackShisa: https://blackshisa.com/es/parking-lot-hit-and-run-evidence.html
+- Cámara para golpes de puerta en el coche aparcado | BlackShisa: https://blackshisa.com/es/door-ding-evidence.html
+- Cámara para registrar vandalismo en el coche | BlackShisa: https://blackshisa.com/es/car-vandalism-evidence.html
+- Usar un móvil viejo como cámara para el coche | BlackShisa: https://blackshisa.com/es/spare-phone-car-security-camera.html
+- Alternativa al modo aparcamiento de una dashcam | BlackShisa: https://blackshisa.com/es/dash-cam-parking-mode-alternative.html
+- Vigilancia del coche aparcado en iPhone y Android | BlackShisa: https://blackshisa.com/es/parked-car-monitoring-app.html
+- Dónde colocar una cámara en el coche aparcado | BlackShisa: https://blackshisa.com/es/parked-car-camera-placement.html
+- Detección de movimiento, sonido e impacto al aparcar | BlackShisa: https://blackshisa.com/es/parking-camera-detection-guide.html
+- Batería, calor y seguridad al vigilar el coche con un móvil: https://blackshisa.com/es/spare-phone-parking-camera-safety.html
+
+## Deutsche Ratgeber
+- Guide hub: https://blackshisa.com/de/parking-guides.html
+- Parkmodus mit dem Handy: So funktioniert es | BlackShisa: https://blackshisa.com/de/parking-mode-app.html
+- Parkschaden mit Fahrerflucht: Kamera-App für Beweise: https://blackshisa.com/de/parking-lot-hit-and-run-evidence.html
+- Türrempler am geparkten Auto: Kamera für Beweise: https://blackshisa.com/de/door-ding-evidence.html
+- Vandalismus am Auto mit einer Kamera dokumentieren: https://blackshisa.com/de/car-vandalism-evidence.html
+- Altes Handy als Überwachungskamera fürs Auto nutzen: https://blackshisa.com/de/spare-phone-car-security-camera.html
+- Alternative zum Dashcam-Parkmodus: altes Smartphone: https://blackshisa.com/de/dash-cam-parking-mode-alternative.html
+- Parküberwachung mit iPhone und Android | BlackShisa: https://blackshisa.com/de/parked-car-monitoring-app.html
+- Kamera im geparkten Auto richtig positionieren: https://blackshisa.com/de/parked-car-camera-placement.html
+- Bewegungs-, Geräusch- und Erschütterungserkennung beim Parken: https://blackshisa.com/de/parking-camera-detection-guide.html
+- Handy-Parküberwachung: Akku, Hitze und Sicherheit: https://blackshisa.com/de/spare-phone-parking-camera-safety.html
 
 ## Resources
-- Google Play (Android): https://play.google.com/store/apps/details?id=app.blackshisa.blackShisaApp
+- Google Play: https://play.google.com/store/apps/details?id=app.blackshisa.blackShisaApp
 - Sitemap: https://blackshisa.com/sitemap.xml
 - Robots: https://blackshisa.com/robots.txt
