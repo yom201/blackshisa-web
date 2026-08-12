@@ -35,7 +35,7 @@
   </url>
   <url>
     <loc>https://blackshisa.com/ja/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en-US" href="https://blackshisa.com/"/>
@@ -123,7 +123,7 @@
   </url>
   <url>
     <loc>https://blackshisa.com/ja/parking-mode-app.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
     <xhtml:link rel="alternate" hreflang="en-US" href="https://blackshisa.com/parking-mode-app.html"/>
@@ -146,9 +146,21 @@
   </url>
   <url>
     <loc>https://blackshisa.com/parking-lot-hit-and-run-evidence.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://blackshisa.com/parking-lot-hit-and-run-evidence.html"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://blackshisa.com/ja/parking-lot-hit-and-run-evidence.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://blackshisa.com/parking-lot-hit-and-run-evidence.html"/>
+  </url>
+  <url>
+    <loc>https://blackshisa.com/ja/parking-lot-hit-and-run-evidence.html</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://blackshisa.com/parking-lot-hit-and-run-evidence.html"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://blackshisa.com/ja/parking-lot-hit-and-run-evidence.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://blackshisa.com/parking-lot-hit-and-run-evidence.html"/>
   </url>
   <url>
     <loc>https://blackshisa.com/door-ding-evidence.html</loc>
@@ -170,9 +182,21 @@
   </url>
   <url>
     <loc>https://blackshisa.com/dash-cam-parking-mode-alternative.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://blackshisa.com/dash-cam-parking-mode-alternative.html"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://blackshisa.com/ja/dash-cam-parking-mode-alternative.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://blackshisa.com/dash-cam-parking-mode-alternative.html"/>
+  </url>
+  <url>
+    <loc>https://blackshisa.com/ja/dash-cam-parking-mode-alternative.html</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://blackshisa.com/dash-cam-parking-mode-alternative.html"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://blackshisa.com/ja/dash-cam-parking-mode-alternative.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://blackshisa.com/dash-cam-parking-mode-alternative.html"/>
   </url>
   <url>
     <loc>https://blackshisa.com/parked-car-monitoring-app.html</loc>
