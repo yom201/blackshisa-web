@@ -1,7 +1,7 @@
 {
   "name": "BlackShisa - Parking Dashcam App",
-  "short_name": "BlackShisa - Parking Dashcam App",
-  "description": "Smartphone-based parked-car evidence recording.",
+  "short_name": "BlackShisa",
+  "description": "Turn a spare phone into a parked-car event camera.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#030303",

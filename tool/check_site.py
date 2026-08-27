@@ -130,6 +130,9 @@ class Page:
     refs: list[tuple[str, str]] = field(default_factory=list)
     visible_links: list[str] = field(default_factory=list)
     json_ld: list[str] = field(default_factory=list)
+    meta_names: dict[str, list[str]] = field(default_factory=dict)
+    meta_properties: dict[str, list[str]] = field(default_factory=dict)
+    images: list[dict[str, str]] = field(default_factory=list)
 
 
 class PageParser(HTMLParser):
@@ -155,6 +158,12 @@ class PageParser(HTMLParser):
             self.page.h1_count += 1
         if tag == "meta" and values.get("name", "").lower() == "description":
             self.page.descriptions.append(values.get("content", "").strip())
+        if tag == "meta" and values.get("name"):
+            name = values["name"].strip().lower()
+            self.page.meta_names.setdefault(name, []).append(values.get("content", "").strip())
+        if tag == "meta" and values.get("property"):
+            name = values["property"].strip().lower()
+            self.page.meta_properties.setdefault(name, []).append(values.get("content", "").strip())
         if tag == "meta" and values.get("name", "").lower() == "robots":
             self.page.robots.append(values.get("content", "").strip().lower())
         if tag == "link" and values.get("rel", "").lower() == "canonical":
@@ -173,6 +182,8 @@ class PageParser(HTMLParser):
                 self.page.refs.append((attr, values[attr]))
         if tag == "a" and self._body_depth and values.get("href"):
             self.page.visible_links.append(values["href"])
+        if tag == "img":
+            self.page.images.append(values)
         if values.get("srcset"):
             for candidate in values["srcset"].split(","):
                 url = candidate.strip().split(maxsplit=1)[0]
@@ -242,6 +253,26 @@ def is_within_root(path: Path) -> bool:
         return False
 
 
+def structured_nodes(page: Page) -> list[dict[str, object]]:
+    """Return JSON-LD nodes, including nodes nested in @graph arrays."""
+    nodes: list[dict[str, object]] = []
+    for raw in page.json_ld:
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        values = value if isinstance(value, list) else [value]
+        for item in values:
+            if not isinstance(item, dict):
+                continue
+            graph = item.get("@graph")
+            if isinstance(graph, list):
+                nodes.extend(node for node in graph if isinstance(node, dict))
+            else:
+                nodes.append(item)
+    return nodes
+
+
 def main() -> int:
     errors: list[str] = []
     pages: dict[Path, Page] = {}
@@ -278,6 +309,24 @@ def main() -> int:
         if path.name != VERIFICATION_PAGE
     }
     canonical_pages: dict[str, Page] = {}
+    title_pages: dict[str, Path] = {}
+    description_pages: dict[str, Path] = {}
+
+    guide_paths = {
+        "parking-mode-app.html",
+        "de/parking-mode-app.html",
+        "es/parking-mode-app.html",
+        "ja/parking-mode-app.html",
+        "parking-lot-hit-and-run-evidence.html",
+        "ja/parking-lot-hit-and-run-evidence.html",
+        "dash-cam-parking-mode-alternative.html",
+        "ja/dash-cam-parking-mode-alternative.html",
+        "door-ding-evidence.html",
+        "car-vandalism-evidence.html",
+        "spare-phone-car-security-camera.html",
+        "parked-car-monitoring-app.html",
+    }
+    home_paths = {"index.html", "de/index.html", "es/index.html", "ja/index.html"}
 
     for path, page in public_pages.items():
         rel = path.relative_to(ROOT)
@@ -290,8 +339,116 @@ def main() -> int:
             errors.append(f"{rel}: html lang {page.lang!r} != {expected_lang!r}")
         if page.title_count != 1 or not page.title:
             errors.append(f"{rel}: expected one non-empty title, found {page.title_count}")
+        elif not 20 <= len(page.title) <= 65:
+            errors.append(f"{rel}: title length {len(page.title)} is outside 20..65 characters")
+        elif page.title in title_pages:
+            errors.append(f"{rel}: title duplicates {title_pages[page.title].relative_to(ROOT)}")
+        else:
+            title_pages[page.title] = path
         if len(page.descriptions) != 1 or not page.descriptions[0]:
             errors.append(f"{rel}: expected one non-empty meta description")
+        else:
+            description = page.descriptions[0]
+            minimum = 45 if expected_lang == "ja-JP" else 90
+            maximum = 110 if expected_lang == "ja-JP" else 160
+            if not minimum <= len(description) <= maximum:
+                errors.append(
+                    f"{rel}: description length {len(description)} is outside {minimum}..{maximum} characters"
+                )
+            if description in description_pages:
+                errors.append(
+                    f"{rel}: description duplicates {description_pages[description].relative_to(ROOT)}"
+                )
+            else:
+                description_pages[description] = path
+
+        expected_meta_names = {
+            "author": "ICHITAP",
+            "twitter:card": "summary_large_image",
+            "twitter:title": page.title,
+            "twitter:description": page.descriptions[0] if page.descriptions else "",
+        }
+        for name, expected_value in expected_meta_names.items():
+            actual = page.meta_names.get(name, [])
+            if actual != [expected_value]:
+                errors.append(f"{rel}: meta {name} {actual!r} != {[expected_value]!r}")
+        twitter_images = page.meta_names.get("twitter:image", [])
+        if len(twitter_images) != 1 or not twitter_images[0].startswith(f"{ORIGIN}/"):
+            errors.append(f"{rel}: expected one same-origin twitter:image")
+
+        expected_locale = {"en-US": "en_US", "de-DE": "de_DE", "es-ES": "es_ES", "ja-JP": "ja_JP"}[
+            expected_lang
+        ]
+        expected_properties = {
+            "og:site_name": "BlackShisa - Parking Dashcam App",
+            "og:locale": expected_locale,
+            "og:title": page.title,
+            "og:description": page.descriptions[0] if page.descriptions else "",
+            "og:url": canonical_for(path),
+        }
+        for name, expected_value in expected_properties.items():
+            actual = page.meta_properties.get(name, [])
+            if actual != [expected_value]:
+                errors.append(f"{rel}: property {name} {actual!r} != {[expected_value]!r}")
+        og_types = page.meta_properties.get("og:type", [])
+        if og_types not in (["website"], ["article"]):
+            errors.append(f"{rel}: expected one supported og:type, found {og_types!r}")
+        og_images = page.meta_properties.get("og:image", [])
+        if len(og_images) != 1 or not og_images[0].startswith(f"{ORIGIN}/"):
+            errors.append(f"{rel}: expected one same-origin og:image")
+
+        eager_image_count = 0
+        for image_index, attributes in enumerate(page.images, 1):
+            if "data-lightbox-image" in attributes:
+                continue
+            if "alt" not in attributes:
+                errors.append(f"{rel}: image #{image_index} is missing alt")
+            for dimension in ("width", "height"):
+                value = attributes.get(dimension, "")
+                if not value.isdigit() or int(value) <= 0:
+                    errors.append(f"{rel}: image #{image_index} has invalid {dimension}={value!r}")
+            if attributes.get("decoding") != "async":
+                errors.append(f"{rel}: image #{image_index} must use decoding=async")
+            source = attributes.get("src", "")
+            if source and attributes.get("loading") != "lazy":
+                eager_image_count += 1
+            resolved_image = resolve_local(path, source)
+            if resolved_image and resolved_image[0].is_file():
+                target = resolved_image[0]
+                if target.stat().st_size > 300_000 and target.suffix.lower() != ".webp":
+                    errors.append(
+                        f"{rel}: image #{image_index} uses a non-WebP asset larger than 300 KB: "
+                        f"{target.relative_to(ROOT)}"
+                    )
+
+        eager_limit = 4 if rel.as_posix() in {"index.html", "de/index.html", "es/index.html"} else 2
+        if rel.as_posix() in {"privacy-policy.html", "eula.html"}:
+            eager_limit = 1
+        if eager_image_count > eager_limit:
+            errors.append(
+                f"{rel}: {eager_image_count} eager images exceeds the above-the-fold limit {eager_limit}"
+            )
+
+        nodes = structured_nodes(page)
+        schema_types = {
+            schema_type
+            for node in nodes
+            for schema_type in ([node.get("@type")] if isinstance(node.get("@type"), str) else [])
+        }
+        for node in nodes:
+            if node.get("@type") == "WebPage":
+                if node.get("name") != page.title:
+                    errors.append(f"{rel}: WebPage.name does not match title")
+                if node.get("description") != (page.descriptions[0] if page.descriptions else ""):
+                    errors.append(f"{rel}: WebPage.description does not match meta description")
+        if rel.as_posix() in home_paths:
+            required_types = {"Organization", "WebSite", "SoftwareApplication", "FAQPage"}
+            if not required_types.issubset(schema_types):
+                errors.append(f"{rel}: home schema missing {sorted(required_types - schema_types)}")
+        if rel.as_posix() in guide_paths:
+            required_types = {"WebPage", "Article", "BreadcrumbList", "FAQPage"}
+            if not required_types.issubset(schema_types):
+                errors.append(f"{rel}: guide schema missing {sorted(required_types - schema_types)}")
         if len(page.robots) != 1 or not {"index", "follow"}.issubset(
             {part.strip() for part in page.robots[0].split(",")}
         ):

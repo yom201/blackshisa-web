@@ -1,24 +1,24 @@
 # BlackShisaサイト全体仕様書
 
-最終更新日: 2026-08-13
+最終更新日: 2026-08-27
 
 対象リポジトリ: `yom201/blackshisa-web`
 
-対象構成: `agent/ja-three-keyword-seo`で確定した重点3キーワード版
+対象構成: `codex/seo-rebuild-20260827`の全言語SEO再構築版
 
-基準コミット: `547cdb3`と本仕様書追加差分
+基準コミット: `7b8f6ab`からの全言語SEO再構築差分
 
 正規オリジン: `https://blackshisa.com`
 
 ### 検証根拠
 
-本書の現状記述は、2026-08-13に次の方法で確認した結果です。将来の担当者は、日付依存の状態をそのまま恒久仕様だと扱わず、更新時に再確認してください。
+本書の現状記述は、2026-08-27に次の方法で確認した結果です。将来の担当者は、日付依存の状態をそのまま恒久仕様だと扱わず、更新時に再確認してください。
 
 - **[git検証]** ブランチ、コミット、tracked file、本番配信元との差分
 - **[実ファイル検証]** HTML、CSS、JavaScript、画像、canonical、hreflang、sitemap、内部リンク
 - **[実コード検証]** 隣接する`blackshisa_app`の録画・検知・保存条件
 - **[実ログ検証]** GitHub Pages設定、公開レスポンス、ローカル検査、モバイル表示
-- **[Google実画面検証]** 日本語重点3検索語の単発SERP。恒久順位ではなく監査時点の参考値
+- **[Google実画面検証]** Search Consoleの過去3か月の検索実績、index、sitemap、リンク。恒久順位ではなく監査時点の参考値
 
 ## 1. 文書の目的と優先順位
 
@@ -42,10 +42,10 @@
 | --- | --- |
 | 本番配信元 | GitHub Pages、`main`ブランチ、リポジトリ直下`/` |
 | 本番ドメイン | `https://blackshisa.com`、HTTPS強制 |
-| 本番の確認済みコミット | `6c7690c`。2026-08-13時点では重点3キーワード差分より前 |
-| 重点3キーワード版 | ローカルブランチ`agent/ja-three-keyword-seo` |
-| 重点版の実装コミット | `547cdb3` |
-| 重点版の公開状態 | この文書作成時点では未push・未公開 |
+| 本番の確認済みコミット | `6c7690c`。2026-08-27時点でも重点3キーワード差分と全言語再構築より前 |
+| 公開候補 | ローカルブランチ`codex/seo-rebuild-20260827` |
+| 公開候補の基点 | `7b8f6ab`。重点3キーワード版を含む |
+| 公開候補の状態 | この文書更新時点では未push・未公開 |
 | 生成型40ガイド案 | `agent/multilingual-seo`に隔離。現行仕様では非採用 |
 
 「ローカルで完成」「GitHubへpush済み」「`main`へマージ済み」「本番Pagesで配信済み」は別の状態です。どの状態かを確認せずに「公開済み」と表現しません。
@@ -93,13 +93,13 @@ blackshisa-web/
 
 ### 3.1 実行時ファイルの規模
 
-2026-08-13のfocused版を基準にした、文書・検査ツールを除く主要ファイル数です。
+2026-08-27の全言語再構築版を基準にした、文書・検査ツールを除く主要ファイル数です。
 
 | 区分 | 数 | 備考 |
 | --- | ---: | --- |
 | 通常HTML | 22 | canonicalとsitemapの対象 |
 | Google確認HTML | 1 | 通常ページ検査の例外 |
-| 画像 | 50 | 原本・旧形式・未参照候補を含む |
+| 画像 | 69 | WebP配信用派生19件と、保持中の原本・旧形式を含む |
 | CSS | 2 | 共通とSecurity Light専用 |
 | JavaScript | 1 | ホームのlightbox専用 |
 
@@ -388,7 +388,7 @@ JavaScriptへページ固有のSEO本文を持たせません。主要コンテ�
 | `use-case02.webp` | 1536×1024 | 夜の利用例 |
 | `security-light/parked-car.webp` | 1536×1024 | Security Light導線 |
 
-旧PNG・JPEGは英語、ドイツ語、スペイン語や拡大元で現在も使われます。ファイルサイズが大きいという理由だけで一括削除しません。削除前に`rg`で全HTML/CSS/JSからの参照が0件であることを確認します。
+旧PNG・JPEGの多くは配信参照をWebPへ切り替えましたが、原本・復旧素材として保持しています。ファイルサイズが大きいという理由だけで一括削除しません。削除前に`rg`で全HTML/CSS/JSからの参照が0件であることを確認します。
 
 ### 9.3 新しい画像の受け入れ条件
 
@@ -403,7 +403,7 @@ JavaScriptへページ固有のSEO本文を持たせません。主要コンテ�
 
 ### 9.4 画像資産の保守状況
 
-2026-08-13時点の画像50件は合計32,005,818 bytesです。内訳はPNG 24件、`.jpeg` 8件、`.jpg` 7件、WebP 11件です。日本語重点ページはWebP化済みですが、英語・ドイツ語・スペイン語の旧ページには大きなPNG/JPEGが残ります。
+2026-08-27時点の画像69件は合計33,318,570 bytesです。内訳はPNG 24件、`.jpeg` 8件、`.jpg` 7件、WebP 30件です。全22ページが実行時に参照するローカル画像は34件、合計2,286,178 bytesで、そのうち30件がWebPです。参照中のラスター画像に300 KB超はありません。元画像は復旧用に残すため、リポジトリ全体の総容量と実行時転送量を混同しません。
 
 次の8件はHTML/CSS/JavaScriptから参照されていませんが、原本または移行前資産の可能性があるため自動削除しません。
 
@@ -431,8 +431,10 @@ JavaScriptへページ固有のSEO本文を持たせません。主要コンテ�
 - visible H1が1件
 - 必要なページだけ相互hreflang
 - Open Graph metadata
-- 法務以外のコンテンツページはTwitter metadata
+- 全通常ページにTwitter metadata
+- `meta name="author"`とページ言語に合う`og:locale`
 - ページ内容と一致するJSON-LD
+- 全静的画像に固有寸法と`decoding="async"`
 - `robots`は原則`index,follow,max-image-preview:large`
 
 title、meta description、OG title/description、Twitter title/description、JSON-LD headline/description、visible H1は文字列を完全一致させる必要はありませんが、ページの役割と主張を矛盾させません。
@@ -628,12 +630,12 @@ focused版のcheckerは、生成ページだけでなく次の40ガイド専用�
 
 ### 16.1 初回公開前の引き継ぎ
 
-2026-08-13時点では、focused版の実装と本仕様書はローカル`agent/ja-three-keyword-seo`にあり、`origin/main`は旧サイトです。初回公開前に新しい担当者が`origin/main`からブランチを作ると、focused版、README、checker、CIを持たない状態へ戻ります。
+2026-08-27時点では、全言語SEO再構築版と本仕様書はローカル`codex/seo-rebuild-20260827`にあり、`origin/main`は旧サイトです。初回公開前に新しい担当者が`origin/main`からブランチを作ると、重点版、今回の再構築、README、checker、CIを持たない状態へ戻ります。
 
 初回だけは、共有workspaceにある現在のブランチをそのまま検証し、pushしてPull Requestを作成します。
 
 ```bash
-git switch agent/ja-three-keyword-seo
+git switch codex/seo-rebuild-20260827
 git status --short --branch
 git log --oneline origin/main..HEAD
 
@@ -641,8 +643,8 @@ env PYTHONDONTWRITEBYTECODE=1 python3 tool/check_site.py
 git diff --check origin/main..HEAD
 xmllint --noout sitemap.xml
 
-git push -u origin agent/ja-three-keyword-seo
-gh pr create --draft --base main --head agent/ja-three-keyword-seo
+git push -u origin codex/seo-rebuild-20260827
+gh pr create --draft --base main --head codex/seo-rebuild-20260827
 ```
 
 PRには重点3キーワード実装と本引き継ぎ仕様を含めます。Pages公開と本番smoke testが完了したら、2.1の本番コミット・公開状態とREADMEの「現在の引き継ぎ状態」を同じ変更で現況へ更新します。その後は次の通常手順へ切り替えます。
@@ -717,9 +719,14 @@ jq empty site.webmanifest
 `tool/check_site.py`は次を検査します。
 
 - 通常ページの言語階層、title、description、robots、H1、canonical
+- title・descriptionの長さと全ページ内の重複
 - canonicalのURL・重複
-- JSON-LDのJSON構文
+- author、OG、Twitterの必須項目とtitle・descriptionの一致
+- JSON-LDのJSON構文、ページ種別ごとの必須schema、WebPageとmetadataの一致
 - 重複ID
+- 静的画像のalt属性、正のwidth・height、`decoding="async"`
+- 参照中の300 KB超非WebP画像
+- ページ種別ごとのabove-the-fold上限を超えるeager画像
 - HTMLのローカルhref、src、srcset、poster、lightbox `data-full`の実在
 - CSSのローカル`url()`参照
 - ローカルfragmentの実在
