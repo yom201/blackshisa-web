@@ -45,7 +45,7 @@
           <p class="kicker">Privacy Policy</p>
           <h1 id="legal-title">Privacy Policy</h1>
           <p class="legal-lede">BlackShisa - Parking Dashcam App is built around local evidence storage. This page explains what the app processes, what stays on your device, and what is sent only when you enable optional features.</p>
-          <p class="legal-meta">Effective date: July 9, 2026</p>
+          <p class="legal-meta">Effective date: August 13, 2026</p>
         </div>
       </section>
 
@@ -68,7 +68,7 @@
           <article class="legal-card">
             <section id="overview">
               <h2>1. Overview</h2>
-              <p>BlackShisa - Parking Dashcam App is designed around local evidence storage. The app records parked-car evidence clips and still frames on your device when motion, sound, or impact is detected. Internet access is only needed for optional Google Drive backup, optional Gmail alerts, website access, and App Store purchase services.</p>
+              <p>BlackShisa - Parking Dashcam App is designed around local evidence storage. The app records parked-car evidence clips and still frames on your device when motion, sound, or impact is detected. Internet access is used for optional Google Drive backup, optional Gmail alerts, website access, purchase services provided by the App Store or Google Play, and subscription-entitlement diagnostics provided through RevenueCat.</p>
               <p>This Privacy Policy explains what information BlackShisa - Parking Dashcam App processes, where it is stored, and the choices you have.</p>
             </section>
 
@@ -112,7 +112,7 @@
                     <tr>
                       <td>Google account information and authorization</td>
                       <td>To let you link Google Drive, show the linked account, check Drive storage quota, upload files, and send Gmail alerts from your linked account.</td>
-                      <td>Handled through Google Sign-In and Google APIs. The app requests limited scopes such as Drive file access, Drive metadata read-only access, and Gmail send permission when needed.</td>
+                      <td>Handled through Google Sign-In and Google APIs. The app requests the Google Drive <code>drive.file</code> scope for files and folders it creates in your Drive and the Gmail <code>gmail.send</code> scope for Gmail alerts. Depending on the account-linking flow, these scopes may be requested together.</td>
                     </tr>
                     <tr>
                       <td>Gmail alert content</td>
@@ -120,14 +120,14 @@
                       <td>Sent through the Gmail API from your linked Gmail account to that same account. The email may include event type, time, and a JPEG still image.</td>
                     </tr>
                     <tr>
-                      <td>Photos library access</td>
-                      <td>To save selected evidence images or videos to the Photos app when you request it.</td>
-                      <td>Written to your device Photos library through iOS permissions.</td>
+                      <td>Device media library access</td>
+                      <td>To save selected evidence images or videos to the iOS Photos library or Android media library when you request it.</td>
+                      <td>On iOS, the app uses add-only Photos permission. On Android, requested exports are written through Android MediaStore to Pictures/BlackShisa or Movies/BlackShisa.</td>
                     </tr>
                     <tr>
                       <td>Subscription and purchase status</td>
-                      <td>To process purchases, trials, renewals, cancellations, refunds, and feature access if subscriptions are offered.</td>
-                      <td>Processed by Apple through the App Store. We do not receive your payment card details.</td>
+                      <td>To display offers and determine feature access after purchases, trials, renewals, cancellations, or refunds if subscriptions are offered.</td>
+                      <td>Purchase processing is handled by Apple through the App Store on iOS or Google through Google Play on Android. The app also sends an automatically generated anonymous app user ID and queries RevenueCat for subscription and entitlement status used for diagnostics. We do not receive your payment card details.</td>
                     </tr>
                     <tr>
                       <td>App settings and local diagnostic information</td>
@@ -137,6 +137,7 @@
                   </tbody>
                 </table>
               </div>
+              <p>On Android, BlackShisa - Parking Dashcam App requests camera permission, microphone permission when sound detection is enabled, and notification permission on Android versions with runtime notification permission. Evidence is stored in the app's private storage. The current Android release does not request location or general photo, video, or storage access permissions.</p>
             </section>
 
             <section id="not-collected">
@@ -145,7 +146,7 @@
                 <li>We do not store your evidence videos on a developer-operated evidence server.</li>
                 <li>We do not sell personal information.</li>
                 <li>We do not use advertising SDKs or track you across other companies' apps or websites for advertising.</li>
-                <li>We do not request location permission in the current iOS release.</li>
+                <li>We do not request location permission in the current iOS or Android release.</li>
                 <li>We do not intentionally collect contacts, health data, or precise location data.</li>
               </ul>
             </section>
@@ -160,8 +161,9 @@
               <h2>6. Third-Party Services</h2>
               <p>BlackShisa - Parking Dashcam App may interact with these third-party services when you use the relevant feature:</p>
               <ul>
-                <li>Apple: App Store distribution, in-app purchase or subscription processing, iOS permissions, and Photos library save actions.</li>
-                <li>Google: Google Sign-In, Google Drive API, Gmail API, and related authentication services for optional backup and email alerts.</li>
+                <li>Apple (iOS): App Store distribution and purchase or subscription processing, iOS permission controls, and Photos library save actions.</li>
+                <li>Google: Google Play distribution and purchase or subscription processing on Android, plus Google Sign-In, Google Drive API, Gmail API, and related authentication services for optional backup and email alerts.</li>
+                <li>RevenueCat (iOS and Android): an anonymous app user ID and subscription or entitlement information for subscription diagnostics. Purchases continue to be completed by the applicable app store. See <a href="https://www.revenuecat.com/privacy/" target="_blank" rel="noopener">RevenueCat's Privacy Policy</a>.</li>
               </ul>
               <p>We may disclose information if required by law, to protect rights or safety, or with your consent. Optional Drive backups are stored in your Google Drive account, and Gmail alerts are stored in your Gmail account according to your Google settings.</p>
             </section>
@@ -170,6 +172,7 @@
               <h2>7. Retention</h2>
               <ul>
                 <li>Local event clips, still images, and metadata remain on your device until you delete them, delete the app, or the app removes old events when device free space falls below its storage threshold.</li>
+                <li>Copies that you explicitly save to the iOS Photos library or Android media library are managed separately and may remain after you delete the in-app event or uninstall the app, until you delete those copies using device controls.</li>
                 <li>Google Drive backup files remain in your Google Drive until you delete them or revoke access through Google.</li>
                 <li>Gmail alert emails remain in your Gmail account until you delete them.</li>
                 <li>App settings remain on your device until you reset them, sign out, delete the app, or the operating system removes them.</li>
@@ -180,18 +183,19 @@
             <section id="choices">
               <h2>8. Your Choices</h2>
               <ul>
-                <li>You can deny camera, microphone, notification, or Photos permissions in iOS settings, although some features may not work without the relevant permission.</li>
+                <li>You can deny camera, microphone, or notification permissions in your device settings and deny add-only Photos permission in iOS settings, although some features may not work without the relevant permission.</li>
                 <li>You can delete events inside the app.</li>
+                <li>You can delete copies saved to the iOS Photos library or Android media library using device controls.</li>
                 <li>You can unlink Google Drive in the app settings, disable Gmail alerts, or revoke access from your Google Account settings.</li>
                 <li>You can delete backed-up files from Google Drive and alert emails from Gmail.</li>
-                <li>You can manage or cancel App Store subscriptions in your Apple ID subscription settings.</li>
+                <li>You can manage or cancel subscriptions in your Apple subscription settings or Google Play Subscriptions, depending on where you purchased.</li>
                 <li>You can contact us at <a href="mailto:support@blackshisa.com">support@blackshisa.com</a> for privacy questions or requests.</li>
               </ul>
             </section>
 
             <section id="security">
               <h2>9. Security</h2>
-              <p>BlackShisa - Parking Dashcam App uses the operating system sandbox, local device storage, iOS permission prompts, and HTTPS connections used by Apple and Google services. No method of storage or transmission is perfect, so you should protect your device with a passcode and keep your Apple and Google accounts secure.</p>
+              <p>BlackShisa - Parking Dashcam App uses the operating system sandbox, app-private local storage, platform permission controls, and HTTPS connections to the third-party services described above. No method of storage or transmission is perfect, so you should protect your device with a passcode or screen lock and keep your Apple and Google accounts secure.</p>
             </section>
 
             <section id="children">
