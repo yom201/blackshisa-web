@@ -1,8 +1,8 @@
 # BlackShisa - Parking Dashcam App
 
-> BlackShisa - Parking Dashcam App is a smartphone app that turns a parked car's phone into a
-> surveillance camera, capturing evidence (readable license plates and faces)
-> of hit-and-run, door dings, and vandalism while the vehicle is parked.
+> BlackShisa - Parking Dashcam App turns a spare smartphone into a parked-car
+> event camera. It can save clips triggered by image changes, sound, or impact,
+> but it does not guarantee that every incident, face, or license plate is captured clearly.
 
 ## Overview
 BlackShisa - Parking Dashcam App detects motion, sound, and impact while your car is parked,
@@ -23,10 +23,12 @@ Drive and notify you by Gmail.
 - Parkmodus-App: https://blackshisa.com/de/parking-mode-app.html
 - App de modo aparcamiento: https://blackshisa.com/es/parking-mode-app.html
 - Parking lot hit-and-run evidence: https://blackshisa.com/parking-lot-hit-and-run-evidence.html
+- 駐車中の当て逃げに備える録画設定と被害後の確認: https://blackshisa.com/ja/parking-lot-hit-and-run-evidence.html
 - Door ding evidence: https://blackshisa.com/door-ding-evidence.html
 - Car vandalism evidence: https://blackshisa.com/car-vandalism-evidence.html
 - Spare phone car security camera: https://blackshisa.com/spare-phone-car-security-camera.html
 - Dash cam parking mode alternative: https://blackshisa.com/dash-cam-parking-mode-alternative.html
+- ドラレコアプリの用途比較: https://blackshisa.com/ja/dash-cam-parking-mode-alternative.html
 - Parked car monitoring app: https://blackshisa.com/parked-car-monitoring-app.html
 
 ## Resources

@@ -262,6 +262,11 @@ h1 {
   line-height: 1.1;
 }
 
+.hero-title-ja-line {
+  display: block;
+  white-space: nowrap;
+}
+
 .hero-copy {
   width: min(100%, 760px);
   margin: 14px auto 0;
@@ -1324,6 +1329,29 @@ body.legal-page::before {
     linear-gradient(180deg, #050505 0%, #030303 48%, #080808 100%);
 }
 
+.guide-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 28px;
+  color: rgba(247, 244, 234, 0.62);
+  font-size: 0.86rem;
+}
+
+.guide-breadcrumb a {
+  color: var(--gold-bright);
+}
+
+.guide-updated {
+  margin-top: 18px;
+  color: rgba(247, 244, 234, 0.58);
+  font-size: 0.86rem;
+}
+
+.guide-cta-section {
+  padding-top: 0;
+}
+
 .guide-hero {
   padding: 86px 0 58px;
   overflow: hidden;
@@ -1365,6 +1393,21 @@ body.legal-page::before {
   color: rgba(247, 244, 234, 0.78);
   background: rgba(255, 255, 255, 0.05);
   font-size: 0.86rem;
+}
+
+.guide-focus-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 16px;
+  margin-top: 18px;
+}
+
+.guide-focus-links a {
+  color: var(--gold-bright);
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-decoration-color: rgba(242, 210, 122, 0.38);
+  text-underline-offset: 4px;
 }
 
 .guide-hero-media {
@@ -1412,6 +1455,25 @@ body.legal-page::before {
   color: rgba(247, 244, 234, 0.78);
 }
 
+.guide-editorial-note {
+  max-width: 1180px;
+  margin: 18px auto 0;
+  padding: 18px 22px;
+  border-left: 3px solid var(--gold);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(247, 244, 234, 0.76);
+}
+
+.guide-editorial-note strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.guide-editorial-note p {
+  margin: 0;
+}
+
 .guide-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
@@ -1420,6 +1482,7 @@ body.legal-page::before {
 }
 
 .guide-article {
+  min-width: 0;
   padding: clamp(24px, 4vw, 46px);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1453,6 +1516,78 @@ body.legal-page::before {
   margin-top: 8px;
 }
 
+.guide-comparison-wrap {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 22px;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+}
+
+.guide-comparison-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.guide-comparison-table th,
+.guide-comparison-table td {
+  padding: 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  vertical-align: top;
+  text-align: left;
+}
+
+.guide-comparison-table th:last-child,
+.guide-comparison-table td:last-child {
+  border-right: 0;
+}
+
+.guide-comparison-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.guide-comparison-table th {
+  color: var(--text);
+  background: rgba(212, 166, 64, 0.13);
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.guide-comparison-table td {
+  color: rgba(247, 244, 234, 0.78);
+  font-size: 0.93rem;
+}
+
+.guide-comparison-table td:first-child {
+  color: var(--gold-bright);
+  font-weight: 700;
+}
+
+.guide-article .guide-comparison-note {
+  margin-top: 10px;
+  color: rgba(247, 244, 234, 0.65);
+  font-size: 0.88rem;
+}
+
+.guide-sources li {
+  display: grid;
+  gap: 4px;
+}
+
+.guide-sources a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.guide-sources span {
+  color: rgba(247, 244, 234, 0.7);
+  font-size: 0.93rem;
+}
+
 .guide-side-panel {
   position: sticky;
   top: 92px;
@@ -1482,6 +1617,10 @@ body.legal-page::before {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
+}
+
+.guide-related-grid-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .guide-related-grid a {
@@ -1547,7 +1686,7 @@ body.legal-page::before {
   .faq,
   .guide-hero-grid,
   .guide-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .security-light-teaser-image {
@@ -1672,6 +1811,16 @@ body.legal-page::before {
 
   h1 {
     font-size: clamp(3.2rem, 16vw, 4.8rem);
+  }
+
+  html[lang^="ja"] .hero h1 {
+    font-size: clamp(2rem, 8.5vw, 2.2rem);
+    line-height: 0.96;
+  }
+
+  html[lang^="es"] .hero h1 {
+    font-size: clamp(2rem, 9.5vw, 2.45rem);
+    line-height: 0.98;
   }
 
   .hero-copy {
@@ -1802,6 +1951,10 @@ body.legal-page::before {
 
   .guide-hero {
     padding: 58px 0 34px;
+  }
+
+  .guide-breadcrumb {
+    padding-top: 20px;
   }
 
   .guide-hero-copy h1 {
