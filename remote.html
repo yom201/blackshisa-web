@@ -176,43 +176,43 @@
         },
         ja: {
           title: 'リモート撮影',
-          lead: '車を見張っている端末に、いまの様子を撮らせます。',
-          signinHelp: 'アプリで連携したものと同じ Google 口座でログインしてください。',
-          signinNote: '読むのは「誰か」だけです。ここでメールやファイルは読みません。',
+          lead: '車を見張っているスマホで今の様子を撮影することができます。',
+          signinHelp: 'アプリで連携したものと同じGoogleアカウントでログインしてください。',
+          // ⛔ 空にすると、その行そのものを出さない（Masahiro 指示 2026-09-22・日本語は削除）。
+          signinNote: '',
           signout: 'ログアウト',
           signedAs: '{email} でログイン中',
-          checking: '見張り役の端末を確認しています…',
-          noMonitor: 'この Google 口座には、見張り役の端末が登録されていません。',
-          noMonitorSub: '車に置く端末でアプリを開き、先に連携してください。',
-          notMonitoring: '端末は連携されていますが、いまは監視していません。',
-          alive: '見張り役の端末は応答しています。',
-          silent: '見張り役の端末から、しばらく報告が届いていません。',
-          silentSub: '撃つことはできますが、応答しないかもしれません。',
-          neverBeat: '見張り役の端末から、まだ一度も報告が届いていません。',
+          checking: '駐車監視中のスマホを確認しています…',
+          noMonitor: 'このGoogleアカウントには、駐車監視中のスマホが登録されていません。',
+          noMonitorSub: '車に置くスマホでアプリを開き、先に連携してください。',
+          notMonitoring: 'スマホは連携されていますが、いまは監視していません。',
+          alive: '駐車監視中のスマホに接続できています。',
+          silent: '駐車監視中のスマホから、しばらく応答がありません。',
+          silentSub: '撮影を依頼することはできますが、応答しないかもしれません。',
+          neverBeat: '駐車監視中のスマホから、まだ一度も応答がありません。',
           shoot: 'いまの様子を撮る',
-          sending: '依頼を送っています…',
-          waiting: '端末が撮るのを待っています…',
-          captured: '撮れました。写真はメールへ向かっています。',
-          capturedPending: '撮れました。端末が通信できるようになり次第、メールで届きます。',
-          timeout: '90 秒待っても応答がありません。端末が圏外か、止まっている可能性があります。',
+          sending: '依頼を送信しています…',
+          waiting: 'スマホが撮影するのを待っています…',
+          captured: '撮影が完了しました。Gmailへ送信済みです。',
+          capturedPending: '撮影が完了しました。スマホが通信できるようになり次第、Gmailへ送信されます。',
+          timeout: '90 秒待っても応答がありません。スマホが圏外か、停止している可能性があります。',
           errAuth: 'ログインの有効期限が切れました。もう一度ログインしてください。',
-          errNoMonitor: 'この Google 口座には、見張り役の端末が登録されていません。',
-          errNoToken: '見張り役の端末が依頼を受け取れません。その端末でアプリを一度 開いてください。',
-          errSameDevice: 'この端末自身が見張り役です。',
+          errNoMonitor: 'このGoogleアカウントには、駐車監視中のスマホが登録されていません。',
+          errNoToken: '駐車監視中のスマホが依頼を受け取れません。そのスマホでアプリを一度 開いてください。',
+          errSameDevice: 'このスマホ自身が駐車監視中のスマホです。',
           errRateMinute: '続けて送りすぎです。1 分ほど待ってください。',
           errRateDay: '1 日の上限に達しました。',
-          errPush: '端末へ届きませんでした。少し待ってやり直してください。',
+          errPush: 'スマホへ届きませんでした。少し待ってやり直してください。',
           errNetwork: '通信に失敗しました。やり直してください。',
           errExpired: '結果の保存期間が切れました。',
-          failPrefix: '撮れませんでした：',
+          failPrefix: '撮影できませんでした：',
           failForeground: 'アプリが前面にありませんでした。',
           failCamera: 'カメラが使えませんでした。',
           failAuth: '依頼が受け付けられませんでした。',
-          failMail: '撮れましたが、メールの送信に失敗しました。',
+          failMail: '撮影できましたが、Gmailへの送信に失敗しました。',
           failEntitled: 'ご利用の期間が終了しています。',
           failOther: '理由は分かりません。',
-          privacy:
-            '写真は見張り役の端末から、あなた自身の Gmail へ直接 送られます。こちらのサーバーには上がらず、保存もされません。',
+          privacy: '撮影した画像はあなたのGmailにのみ保存されています。',
           privacyLink: 'プライバシーポリシー',
         },
         de: {
@@ -301,11 +301,22 @@
 
       const HTML_LANG = { en: 'en-US', ja: 'ja-JP', de: 'de-DE', es: 'es-ES' };
 
+      /**
+       * ⛔ **既定はブラウザの言語設定。** 利用者に選ばせる前に、来た言語で出す。
+       * 希望の順に見て、最初に対応しているものを採る（`ja-JP` のような形も拾う）。
+       * `?lang=` を付けたときだけ、それが優先される。
+       */
       function pickLang() {
         const forced = new URLSearchParams(location.search).get('lang');
         if (forced && I18N[forced]) return forced;
-        const nav = (navigator.language || 'en').slice(0, 2);
-        return I18N[nav] ? nav : 'en';
+        const wanted = navigator.languages && navigator.languages.length
+          ? navigator.languages
+          : [navigator.language || 'en'];
+        for (const tag of wanted) {
+          const code = String(tag).toLowerCase().slice(0, 2);
+          if (I18N[code]) return code;
+        }
+        return 'en';
       }
 
       let lang = pickLang();
@@ -323,7 +334,9 @@
         $('t-title').textContent = T.title;
         $('t-lead').textContent = T.lead;
         $('t-signin-help').textContent = T.signinHelp;
+        // ⛔ 言語によっては、この 1 行を出さない（空文字のときは行ごと消す）。
         $('t-signin-note').textContent = T.signinNote;
+        $('t-signin-note').classList.toggle('hidden', !T.signinNote);
         $('signout').textContent = T.signout;
         $('shoot').textContent = T.shoot;
         $('t-privacy').textContent = T.privacy;
