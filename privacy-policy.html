@@ -120,6 +120,11 @@
                       <td>Sent through the Gmail API from your linked Gmail account to that same account. The email may include event type, time, and a JPEG still image.</td>
                     </tr>
                     <tr>
+                      <td>Remote capture (asking the watching phone to take a photo now)</td>
+                      <td>To let you ask the phone you left with your vehicle to take a photo immediately, from your own phone or from the remote capture page on this website, and to tell you whether it succeeded.</td>
+                      <td>A developer-operated relay on Google Cloud (Firebase) stores, for the Google account you linked: an identifier for that account, a push notification token for the watching phone, a random secret generated on that phone, a random device identifier, your app language, whether monitoring is on, and the time of the last check-in. For each request it stores a random request identifier, the time, the status, and, if it failed, a reason code chosen from a fixed list. <strong>No photo, video, or audio ever passes through or is stored on the relay.</strong> The photo is sent from the watching phone directly to your own Gmail account. Signing in on the remote capture page reads only who you are; it does not read your mail, files, or Drive.</td>
+                    </tr>
+                    <tr>
                       <td>Device media library access</td>
                       <td>To save selected evidence images or videos to the iOS Photos library or Android media library when you request it.</td>
                       <td>On iOS, the app uses add-only Photos permission. On Android, requested exports are written through Android MediaStore to Pictures/BlackShisa or Movies/BlackShisa.</td>
@@ -154,6 +159,7 @@
               <h2>4. Information We Do Not Collect</h2>
               <ul>
                 <li>We do not store your evidence videos on a developer-operated evidence server.</li>
+                <li>Remote capture never sends a photo, video, or audio through our relay. The relay carries only the instruction to take a photo and the result of that instruction.</li>
                 <li>We do not sell personal information.</li>
                 <li>We do not use advertising SDKs or track you across other companies' apps or websites for advertising.</li>
                 <li>We do not request location permission in the current iOS or Android release.</li>
@@ -175,7 +181,7 @@
               <ul>
                 <li>Apple (iOS): App Store distribution and purchase or subscription processing, iOS permission controls, and Photos library save actions.</li>
                 <li>Google: Google Play distribution and purchase or subscription processing on Android, plus Google Sign-In, Google Drive API, Gmail API, and related authentication services for optional backup and email alerts.</li>
-                <li>Google Cloud (Firebase): hosting and storage for the optional in-app feedback you choose to send.</li>
+                <li>Google Cloud (Firebase): hosting and storage for the optional in-app feedback you choose to send, and the relay that carries remote capture instructions and their results, including Firebase Cloud Messaging used to deliver the instruction to the watching phone.</li>
                 <li>RevenueCat (iOS and Android): an anonymous app user ID and subscription or entitlement information for subscription diagnostics. Purchases continue to be completed by the applicable app store. See <a href="https://www.revenuecat.com/privacy/" target="_blank" rel="noopener">RevenueCat's Privacy Policy</a>.</li>
               </ul>
               <p>We may disclose information if required by law, to protect rights or safety, or with your consent. Optional Drive backups are stored in your Google Drive account, and Gmail alerts are stored in your Gmail account according to your Google settings.</p>
@@ -188,6 +194,7 @@
                 <li>Copies that you explicitly save to the iOS Photos library or Android media library are managed separately and may remain after you delete the in-app event or uninstall the app, until you delete those copies using device controls.</li>
                 <li>Google Drive backup files remain in your Google Drive until you delete them or revoke access through Google.</li>
                 <li>Gmail alert emails remain in your Gmail account until you delete them.</li>
+                <li>Remote capture results stop being readable ten minutes after the request. The relay records described above, including the registration of the watching phone, remain until you remove them with the delete function in the app, or until you unlink the account.</li>
                 <li>App settings remain on your device until you reset them, sign out, delete the app, or the operating system removes them.</li>
                 <li>Support emails are retained as long as reasonably necessary to respond, keep security records, and comply with legal obligations.</li>
                 <li>Feedback sent from the app is retained as long as reasonably necessary to act on it and to compare it against later releases.</li>

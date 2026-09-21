@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Remote Capture | BlackShisa</title>
+    <meta name="description" content="Ask the phone that is watching your parked car to take a photo right now. The photo is emailed to you; nothing is stored on our servers.">
+    <!-- ⛔ これは利用者ごとの操作画面である。検索結果に出さない。サイトマップにも載せない。 -->
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="icon" type="image/jpeg" href="assets/img/blackshisa-logo.jpg">
+    <link rel="apple-touch-icon" href="assets/img/blackshisa-logo.jpg">
+    <meta name="theme-color" content="#030303">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      :root {
+        --bg: #030303;
+        --panel: #121214;
+        --line: #2a2a2e;
+        --fg: #f4f4f5;
+        --muted: #a1a1aa;
+        --gold: #c8a04a;
+        --ok: #4ade80;
+        --warn: #fbbf24;
+        --bad: #f87171;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
+          "Noto Sans JP", Roboto, sans-serif;
+        line-height: 1.7;
+      }
+      .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 64px; }
+      header.bar {
+        display: flex; align-items: center; gap: 10px;
+        padding: 14px 16px; border-bottom: 1px solid var(--line);
+      }
+      header.bar img { width: 32px; height: 32px; border-radius: 6px; }
+      header.bar a { color: var(--fg); text-decoration: none; font-weight: 600; }
+      header.bar .spacer { flex: 1; }
+      header.bar select {
+        background: var(--panel); color: var(--fg);
+        border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px;
+      }
+      h1 { font-size: 1.5rem; margin: 28px 0 8px; }
+      p.lead { color: var(--muted); margin-top: 0; }
+      .card {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 14px; padding: 18px; margin: 18px 0;
+      }
+      .row { display: flex; align-items: center; gap: 10px; }
+      .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+      .dot.ok { background: var(--ok); }
+      .dot.warn { background: var(--warn); }
+      .dot.bad { background: var(--bad); }
+      button.shoot {
+        width: 100%; padding: 18px; font-size: 1.05rem; font-weight: 700;
+        color: #17140c; background: var(--gold); border: 0; border-radius: 12px;
+        cursor: pointer;
+      }
+      button.shoot:disabled { opacity: .45; cursor: not-allowed; }
+      .status { margin-top: 14px; min-height: 1.7em; }
+      .status.ok { color: var(--ok); }
+      .status.bad { color: var(--bad); }
+      .status.warn { color: var(--warn); }
+      .note { color: var(--muted); font-size: .9rem; }
+      .hidden { display: none !important; }
+      a.link { color: var(--gold); }
+      .signed { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+      button.plain {
+        background: transparent; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 8px;
+        padding: 6px 10px; cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="bar">
+      <a href="./"><img src="assets/img/blackshisa-logo-nav.webp" alt="" width="32" height="32"> BlackShisa</a>
+      <span class="spacer"></span>
+      <select id="lang" aria-label="Language">
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+      </select>
+    </header>
+
+    <main class="wrap">
+      <h1 id="t-title">Remote capture</h1>
+      <p class="lead" id="t-lead"></p>
+
+      <!-- ログイン前 -->
+      <section class="card" id="signin-card">
+        <p id="t-signin-help"></p>
+        <div id="gbtn"></div>
+        <p class="note" id="t-signin-note"></p>
+      </section>
+
+      <!-- ログイン後 -->
+      <section class="card hidden" id="app-card">
+        <div class="signed">
+          <span class="note" id="who"></span>
+          <button class="plain" id="signout"></button>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+        <div class="row"><span class="dot" id="mon-dot"></span><span id="mon-text"></span></div>
+        <p class="note" id="mon-sub"></p>
+        <button class="shoot" id="shoot" disabled></button>
+        <div class="status" id="status"></div>
+      </section>
+
+      <p class="note" id="t-privacy"></p>
+      <p class="note"><a class="link" href="./privacy-policy.html" id="t-privacy-link">Privacy policy</a></p>
+    </main>
+
+    <script>
+      'use strict';
+
+      // ⛔ 中継の口。写真はここを通らない（命令と結果だけ）。
+      const BASE = 'https://asia-northeast1-ichitap-kids.cloudfunctions.net';
+
+      // ⛔ アプリと同じ OAuth クライアント（型は「ウェブ アプリケーション」）。
+      //    中継が受け付ける audience に既に入っている。**新しく作らない。**
+      //    ⛔ これは秘密ではない。秘密をこのページに置いてはならない。
+      const CLIENT_ID =
+        '31658246526-uab0pnvikv4qels3b5sh81dvmblonv6n.apps.googleusercontent.com';
+
+      // 結果を待つ長さ。⛔ 中継の結果は 10 分で消える。
+      const POLL_INTERVAL_MS = 2000;
+      const POLL_TIMEOUT_MS = 90000;
+
+      const I18N = {
+        en: {
+          title: 'Remote capture',
+          lead: 'Ask the phone watching your car to take a photo right now.',
+          signinHelp: 'Sign in with the same Google account you linked in the app.',
+          signinNote: 'We only read who you are. We never read your mail or files here.',
+          signout: 'Sign out',
+          signedAs: 'Signed in as {email}',
+          checking: 'Checking the watching phone…',
+          noMonitor: 'No watching phone is linked to this Google account.',
+          noMonitorSub: 'Open the app on the phone you leave in the car and link it first.',
+          notMonitoring: 'The phone is linked but is not monitoring right now.',
+          alive: 'The watching phone is responding.',
+          silent: 'The watching phone has not reported in for a while.',
+          silentSub: 'You can still try, but it may not answer.',
+          neverBeat: 'The watching phone has not reported in yet.',
+          shoot: 'Take a photo now',
+          sending: 'Sending the request…',
+          waiting: 'Waiting for the phone to take the photo…',
+          captured: 'Done. The photo is on its way to your email.',
+          capturedPending: 'Photo taken. It will be emailed as soon as the phone is back online.',
+          timeout: 'No answer within 90 seconds. The phone may be offline.',
+          errAuth: 'Your sign-in expired. Please sign in again.',
+          errNoMonitor: 'No watching phone is linked to this Google account.',
+          errNoToken: 'The watching phone cannot receive requests. Reopen the app on it once.',
+          errSameDevice: 'This is the watching phone itself.',
+          errRateMinute: 'Too many requests. Please wait a minute.',
+          errRateDay: 'Daily limit reached.',
+          errPush: 'Could not reach the phone. Please try again shortly.',
+          errNetwork: 'Network error. Please try again.',
+          errExpired: 'The result expired.',
+          failPrefix: 'The phone could not take the photo: ',
+          failForeground: 'the app was not running in front.',
+          failCamera: 'the camera was not available.',
+          failAuth: 'the request was not accepted.',
+          failMail: 'the photo was taken but the email failed.',
+          failEntitled: 'the subscription is not active.',
+          failOther: 'unknown reason.',
+          privacy:
+            'The photo is sent from the watching phone straight to your own Gmail. It is never uploaded to or stored on our servers.',
+          privacyLink: 'Privacy policy',
+        },
+        ja: {
+          title: 'リモート撮影',
+          lead: '車を見張っている端末に、いまの様子を撮らせます。',
+          signinHelp: 'アプリで連携したものと同じ Google 口座でログインしてください。',
+          signinNote: '読むのは「誰か」だけです。ここでメールやファイルは読みません。',
+          signout: 'ログアウト',
+          signedAs: '{email} でログイン中',
+          checking: '見張り役の端末を確認しています…',
+          noMonitor: 'この Google 口座には、見張り役の端末が登録されていません。',
+          noMonitorSub: '車に置く端末でアプリを開き、先に連携してください。',
+          notMonitoring: '端末は連携されていますが、いまは監視していません。',
+          alive: '見張り役の端末は応答しています。',
+          silent: '見張り役の端末から、しばらく報告が届いていません。',
+          silentSub: '撃つことはできますが、応答しないかもしれません。',
+          neverBeat: '見張り役の端末から、まだ一度も報告が届いていません。',
+          shoot: 'いまの様子を撮る',
+          sending: '依頼を送っています…',
+          waiting: '端末が撮るのを待っています…',
+          captured: '撮れました。写真はメールへ向かっています。',
+          capturedPending: '撮れました。端末が通信できるようになり次第、メールで届きます。',
+          timeout: '90 秒待っても応答がありません。端末が圏外か、止まっている可能性があります。',
+          errAuth: 'ログインの有効期限が切れました。もう一度ログインしてください。',
+          errNoMonitor: 'この Google 口座には、見張り役の端末が登録されていません。',
+          errNoToken: '見張り役の端末が依頼を受け取れません。その端末でアプリを一度 開いてください。',
+          errSameDevice: 'この端末自身が見張り役です。',
+          errRateMinute: '続けて送りすぎです。1 分ほど待ってください。',
+          errRateDay: '1 日の上限に達しました。',
+          errPush: '端末へ届きませんでした。少し待ってやり直してください。',
+          errNetwork: '通信に失敗しました。やり直してください。',
+          errExpired: '結果の保存期間が切れました。',
+          failPrefix: '撮れませんでした：',
+          failForeground: 'アプリが前面にありませんでした。',
+          failCamera: 'カメラが使えませんでした。',
+          failAuth: '依頼が受け付けられませんでした。',
+          failMail: '撮れましたが、メールの送信に失敗しました。',
+          failEntitled: 'ご利用の期間が終了しています。',
+          failOther: '理由は分かりません。',
+          privacy:
+            '写真は見張り役の端末から、あなた自身の Gmail へ直接 送られます。こちらのサーバーには上がらず、保存もされません。',
+          privacyLink: 'プライバシーポリシー',
+        },
+        de: {
+          title: 'Fernaufnahme',
+          lead: 'Bitten Sie das Telefon, das Ihr Auto überwacht, jetzt ein Foto zu machen.',
+          signinHelp: 'Melden Sie sich mit demselben Google-Konto an, das Sie in der App verknüpft haben.',
+          signinNote: 'Wir lesen nur, wer Sie sind. Hier werden keine E-Mails oder Dateien gelesen.',
+          signout: 'Abmelden',
+          signedAs: 'Angemeldet als {email}',
+          checking: 'Überwachendes Telefon wird geprüft…',
+          noMonitor: 'Mit diesem Google-Konto ist kein überwachendes Telefon verknüpft.',
+          noMonitorSub: 'Öffnen Sie die App auf dem Telefon im Auto und verknüpfen Sie es zuerst.',
+          notMonitoring: 'Das Telefon ist verknüpft, überwacht aber gerade nicht.',
+          alive: 'Das überwachende Telefon antwortet.',
+          silent: 'Das überwachende Telefon hat sich länger nicht gemeldet.',
+          silentSub: 'Sie können es versuchen, eine Antwort ist aber nicht sicher.',
+          neverBeat: 'Das überwachende Telefon hat sich noch nie gemeldet.',
+          shoot: 'Jetzt ein Foto machen',
+          sending: 'Anfrage wird gesendet…',
+          waiting: 'Warten, bis das Telefon das Foto macht…',
+          captured: 'Fertig. Das Foto ist auf dem Weg zu Ihrer E-Mail.',
+          capturedPending: 'Foto aufgenommen. Es wird gesendet, sobald das Telefon wieder online ist.',
+          timeout: 'Keine Antwort innerhalb von 90 Sekunden. Das Telefon ist möglicherweise offline.',
+          errAuth: 'Ihre Anmeldung ist abgelaufen. Bitte erneut anmelden.',
+          errNoMonitor: 'Mit diesem Google-Konto ist kein überwachendes Telefon verknüpft.',
+          errNoToken: 'Das Telefon kann keine Anfragen empfangen. Öffnen Sie dort die App einmal.',
+          errSameDevice: 'Dies ist das überwachende Telefon selbst.',
+          errRateMinute: 'Zu viele Anfragen. Bitte eine Minute warten.',
+          errRateDay: 'Tageslimit erreicht.',
+          errPush: 'Das Telefon war nicht erreichbar. Bitte gleich noch einmal versuchen.',
+          errNetwork: 'Netzwerkfehler. Bitte erneut versuchen.',
+          errExpired: 'Das Ergebnis ist abgelaufen.',
+          failPrefix: 'Das Foto konnte nicht aufgenommen werden: ',
+          failForeground: 'Die App lief nicht im Vordergrund.',
+          failCamera: 'Die Kamera war nicht verfügbar.',
+          failAuth: 'Die Anfrage wurde nicht akzeptiert.',
+          failMail: 'Foto aufgenommen, aber der E-Mail-Versand schlug fehl.',
+          failEntitled: 'Das Abonnement ist nicht aktiv.',
+          failOther: 'Unbekannter Grund.',
+          privacy:
+            'Das Foto geht direkt vom überwachenden Telefon an Ihr eigenes Gmail. Es wird nie auf unsere Server geladen oder dort gespeichert.',
+          privacyLink: 'Datenschutzerklärung',
+        },
+        es: {
+          title: 'Captura remota',
+          lead: 'Pide al teléfono que vigila tu coche que haga una foto ahora mismo.',
+          signinHelp: 'Inicia sesión con la misma cuenta de Google que vinculaste en la app.',
+          signinNote: 'Solo leemos quién eres. Aquí no leemos tu correo ni tus archivos.',
+          signout: 'Cerrar sesión',
+          signedAs: 'Sesión iniciada como {email}',
+          checking: 'Comprobando el teléfono que vigila…',
+          noMonitor: 'No hay ningún teléfono vigilante vinculado a esta cuenta de Google.',
+          noMonitorSub: 'Abre la app en el teléfono que dejas en el coche y vincúlalo primero.',
+          notMonitoring: 'El teléfono está vinculado, pero ahora no está vigilando.',
+          alive: 'El teléfono vigilante responde.',
+          silent: 'El teléfono vigilante lleva un rato sin dar señales.',
+          silentSub: 'Puedes intentarlo, pero quizá no responda.',
+          neverBeat: 'El teléfono vigilante aún no ha dado ninguna señal.',
+          shoot: 'Hacer una foto ahora',
+          sending: 'Enviando la petición…',
+          waiting: 'Esperando a que el teléfono haga la foto…',
+          captured: 'Listo. La foto va camino de tu correo.',
+          capturedPending: 'Foto hecha. Se enviará en cuanto el teléfono vuelva a tener conexión.',
+          timeout: 'Sin respuesta en 90 segundos. El teléfono puede estar sin conexión.',
+          errAuth: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
+          errNoMonitor: 'No hay ningún teléfono vigilante vinculado a esta cuenta de Google.',
+          errNoToken: 'El teléfono no puede recibir peticiones. Abre la app en él una vez.',
+          errSameDevice: 'Este es el propio teléfono vigilante.',
+          errRateMinute: 'Demasiadas peticiones. Espera un minuto.',
+          errRateDay: 'Has alcanzado el límite diario.',
+          errPush: 'No se pudo contactar con el teléfono. Inténtalo en un momento.',
+          errNetwork: 'Error de red. Inténtalo de nuevo.',
+          errExpired: 'El resultado ha caducado.',
+          failPrefix: 'El teléfono no pudo hacer la foto: ',
+          failForeground: 'la app no estaba en primer plano.',
+          failCamera: 'la cámara no estaba disponible.',
+          failAuth: 'la petición no fue aceptada.',
+          failMail: 'se hizo la foto, pero falló el envío del correo.',
+          failEntitled: 'la suscripción no está activa.',
+          failOther: 'motivo desconocido.',
+          privacy:
+            'La foto se envía desde el teléfono vigilante directamente a tu propio Gmail. Nunca se sube ni se guarda en nuestros servidores.',
+          privacyLink: 'Política de privacidad',
+        },
+      };
+
+      const HTML_LANG = { en: 'en-US', ja: 'ja-JP', de: 'de-DE', es: 'es-ES' };
+
+      function pickLang() {
+        const forced = new URLSearchParams(location.search).get('lang');
+        if (forced && I18N[forced]) return forced;
+        const nav = (navigator.language || 'en').slice(0, 2);
+        return I18N[nav] ? nav : 'en';
+      }
+
+      let lang = pickLang();
+      let T = I18N[lang];
+      let idToken = null;
+      let email = null;
+      let polling = false;
+
+      const $ = (id) => document.getElementById(id);
+
+      function applyLang() {
+        T = I18N[lang];
+        document.documentElement.lang = HTML_LANG[lang];
+        $('lang').value = lang;
+        $('t-title').textContent = T.title;
+        $('t-lead').textContent = T.lead;
+        $('t-signin-help').textContent = T.signinHelp;
+        $('t-signin-note').textContent = T.signinNote;
+        $('signout').textContent = T.signout;
+        $('shoot').textContent = T.shoot;
+        $('t-privacy').textContent = T.privacy;
+        $('t-privacy-link').textContent = T.privacyLink;
+        if (email) $('who').textContent = T.signedAs.replace('{email}', email);
+      }
+
+      function setStatus(message, kind) {
+        const node = $('status');
+        node.textContent = message || '';
+        node.className = 'status' + (kind ? ' ' + kind : '');
+      }
+
+      function setMonitor(dotClass, text, sub) {
+        $('mon-dot').className = 'dot' + (dotClass ? ' ' + dotClass : '');
+        $('mon-text').textContent = text;
+        $('mon-sub').textContent = sub || '';
+      }
+
+      /**
+       * 中継を叩く。⛔ **合言葉は `Authorization` の見出しだけで運ぶ。**
+       * URL には何も載せない（記録に残るため）。
+       */
+      async function call(name, body) {
+        let response;
+        try {
+          response = await fetch(BASE + '/' + name, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + idToken,
+            },
+            body: JSON.stringify(body || {}),
+          });
+        } catch (error) {
+          return { httpStatus: 0, data: null };
+        }
+        let data = null;
+        try {
+          data = await response.json();
+        } catch (error) {
+          data = null;
+        }
+        return { httpStatus: response.status, data };
+      }
+
+      /** ⛔ ログインが切れたら、黙って失敗させずに入口へ戻す。 */
+      function requireSignIn() {
+        idToken = null;
+        email = null;
+        $('app-card').classList.add('hidden');
+        $('signin-card').classList.remove('hidden');
+      }
+
+      async function refreshMonitor() {
+        setMonitor('', T.checking, '');
+        $('shoot').disabled = true;
+        const { httpStatus, data } = await call('getMonitorStatus');
+        if (httpStatus === 401) {
+          requireSignIn();
+          setStatus(T.errAuth, 'bad');
+          return;
+        }
+        if (httpStatus !== 200 || !data) {
+          setMonitor('bad', T.errNetwork, '');
+          return;
+        }
+        if (data.linked !== true) {
+          setMonitor('bad', T.noMonitor, T.noMonitorSub);
+          return;
+        }
+        // ⛔ 「まだ一度も報告が無い」と「落ちた」を混ぜない（中継が null で区別している）。
+        if (data.alive === null) {
+          setMonitor('warn', T.neverBeat, T.silentSub);
+        } else if (data.alive === false) {
+          setMonitor('warn', T.silent, T.silentSub);
+        } else if (data.monitoring !== true) {
+          setMonitor('warn', T.notMonitoring, '');
+        } else {
+          setMonitor('ok', T.alive, '');
+        }
+        // ⛔ 応答が無くても撃たせる。撃てないのは連携が無いときだけ。
+        $('shoot').disabled = false;
+      }
+
+      function describeFailure(reason) {
+        const map = {
+          app_not_foreground: T.failForeground,
+          camera_unavailable: T.failCamera,
+          not_authorized: T.failAuth,
+          mail_failed: T.failMail,
+          not_entitled: T.failEntitled,
+        };
+        return T.failPrefix + (map[reason] || T.failOther);
+      }
+
+      function requestError(httpStatus, data) {
+        const reason = data && data.error;
+        if (httpStatus === 401) return T.errAuth;
+        if (httpStatus === 404) return T.errNoMonitor;
+        if (httpStatus === 409) return T.errNoToken;
+        if (httpStatus === 403) return T.errSameDevice;
+        if (httpStatus === 429) {
+          return reason === 'too_many_per_day' ? T.errRateDay : T.errRateMinute;
+        }
+        if (httpStatus === 502 || httpStatus === 503) return T.errPush;
+        return T.errNetwork;
+      }
+
+      async function pollResult(requestId) {
+        const deadline = Date.now() + POLL_TIMEOUT_MS;
+        while (Date.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+          const { httpStatus, data } = await call('getCaptureResult', { requestId });
+          if (httpStatus === 401) {
+            requireSignIn();
+            return { text: T.errAuth, kind: 'bad' };
+          }
+          if (httpStatus === 410) return { text: T.errExpired, kind: 'warn' };
+          if (httpStatus !== 200 || !data) continue;
+          if (data.status === 'captured') return { text: T.captured, kind: 'ok' };
+          if (data.status === 'captured_pending_send') {
+            return { text: T.capturedPending, kind: 'warn' };
+          }
+          if (data.status === 'failed') {
+            return { text: describeFailure(data.reason), kind: 'bad' };
+          }
+          // status === 'sent' ＝ まだ届いていない。待つ。
+        }
+        return { text: T.timeout, kind: 'bad' };
+      }
+
+      async function shoot() {
+        if (polling) return;
+        polling = true;
+        $('shoot').disabled = true;
+        setStatus(T.sending, '');
+        const { httpStatus, data } = await call('requestCapture');
+        if (httpStatus !== 200 || !data || !data.requestId) {
+          if (httpStatus === 401) requireSignIn();
+          setStatus(requestError(httpStatus, data), 'bad');
+          polling = false;
+          $('shoot').disabled = false;
+          return;
+        }
+        setStatus(T.waiting, '');
+        const result = await pollResult(data.requestId);
+        setStatus(result.text, result.kind);
+        polling = false;
+        $('shoot').disabled = false;
+        refreshMonitor();
+      }
+
+      /** ⛔ ID トークンの中身は読むだけ。署名の検証は中継がやる。 */
+      function emailFromToken(token) {
+        try {
+          const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+          const payload = JSON.parse(decodeURIComponent(escape(atob(part))));
+          return payload.email || null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function onCredential(response) {
+        idToken = response.credential;
+        email = emailFromToken(idToken);
+        $('who').textContent = T.signedAs.replace('{email}', email || '');
+        $('signin-card').classList.add('hidden');
+        $('app-card').classList.remove('hidden');
+        setStatus('', '');
+        refreshMonitor();
+      }
+
+      function initGoogle() {
+        if (!window.google || !google.accounts || !google.accounts.id) {
+          setTimeout(initGoogle, 200);
+          return;
+        }
+        google.accounts.id.initialize({
+          client_id: CLIENT_ID,
+          callback: onCredential,
+          auto_select: false,
+        });
+        google.accounts.id.renderButton($('gbtn'), {
+          theme: 'filled_black',
+          size: 'large',
+          shape: 'pill',
+          text: 'signin_with',
+        });
+      }
+
+      $('lang').addEventListener('change', (event) => {
+        lang = event.target.value;
+        applyLang();
+      });
+      $('shoot').addEventListener('click', shoot);
+      $('signout').addEventListener('click', () => {
+        if (window.google && google.accounts && google.accounts.id) {
+          google.accounts.id.disableAutoSelect();
+        }
+        requireSignIn();
+        setStatus('', '');
+      });
+
+      applyLang();
+      initGoogle();
+    </script>
+  </body>
+</html>
