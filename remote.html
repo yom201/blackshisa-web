@@ -143,11 +143,8 @@
           checking: 'Checking the watching phone…',
           noMonitor: 'No watching phone is linked to this Google account.',
           noMonitorSub: 'Open the app on the phone you leave in the car and link it first.',
-          notMonitoring: 'The phone is linked but is not monitoring right now.',
-          alive: 'The watching phone is responding.',
-          silent: 'The watching phone has not reported in for a while.',
-          silentSub: 'You can still try, but it may not answer.',
-          neverBeat: 'The watching phone has not reported in yet.',
+          linked: 'A watching phone is linked to this account.',
+          linkedSub: 'Whether it answers is only known once you ask.',
           shoot: 'Take a photo now',
           sending: 'Sending the request…',
           waiting: 'Waiting for the phone to take the photo…',
@@ -185,11 +182,8 @@
           checking: '駐車監視中のスマホを確認しています…',
           noMonitor: 'このGoogleアカウントには、駐車監視中のスマホが登録されていません。',
           noMonitorSub: '車に置くスマホでアプリを開き、先に連携してください。',
-          notMonitoring: 'スマホは連携されていますが、いまは監視していません。',
-          alive: '駐車監視中のスマホに接続できています。',
-          silent: '駐車監視中のスマホから、しばらく応答がありません。',
-          silentSub: '撮影を依頼することはできますが、応答しないかもしれません。',
-          neverBeat: '駐車監視中のスマホから、まだ一度も応答がありません。',
+          linked: 'このアカウントに、駐車監視中のスマホが連携されています。',
+          linkedSub: '応答するかどうかは、頼んでみないと分かりません。',
           shoot: 'いまの様子を撮る',
           sending: '依頼を送信しています…',
           waiting: 'スマホが撮影するのを待っています…',
@@ -225,11 +219,8 @@
           checking: 'Überwachendes Telefon wird geprüft…',
           noMonitor: 'Mit diesem Google-Konto ist kein überwachendes Telefon verknüpft.',
           noMonitorSub: 'Öffnen Sie die App auf dem Telefon im Auto und verknüpfen Sie es zuerst.',
-          notMonitoring: 'Das Telefon ist verknüpft, überwacht aber gerade nicht.',
-          alive: 'Das überwachende Telefon antwortet.',
-          silent: 'Das überwachende Telefon hat sich länger nicht gemeldet.',
-          silentSub: 'Sie können es versuchen, eine Antwort ist aber nicht sicher.',
-          neverBeat: 'Das überwachende Telefon hat sich noch nie gemeldet.',
+          linked: 'Mit diesem Konto ist ein überwachendes Telefon verknüpft.',
+          linkedSub: 'Ob es antwortet, zeigt sich erst bei der Anfrage.',
           shoot: 'Jetzt ein Foto machen',
           sending: 'Anfrage wird gesendet…',
           waiting: 'Warten, bis das Telefon das Foto macht…',
@@ -266,11 +257,8 @@
           checking: 'Comprobando el teléfono que vigila…',
           noMonitor: 'No hay ningún teléfono vigilante vinculado a esta cuenta de Google.',
           noMonitorSub: 'Abre la app en el teléfono que dejas en el coche y vincúlalo primero.',
-          notMonitoring: 'El teléfono está vinculado, pero ahora no está vigilando.',
-          alive: 'El teléfono vigilante responde.',
-          silent: 'El teléfono vigilante lleva un rato sin dar señales.',
-          silentSub: 'Puedes intentarlo, pero quizá no responda.',
-          neverBeat: 'El teléfono vigilante aún no ha dado ninguna señal.',
+          linked: 'Hay un teléfono vigilante vinculado a esta cuenta.',
+          linkedSub: 'Si responde o no, solo se sabe al pedirlo.',
           shoot: 'Hacer una foto ahora',
           sending: 'Enviando la petición…',
           waiting: 'Esperando a que el teléfono haga la foto…',
@@ -408,17 +396,9 @@
           setMonitor('bad', T.noMonitor, T.noMonitorSub);
           return;
         }
-        // ⛔ 「まだ一度も報告が無い」と「落ちた」を混ぜない（中継が null で区別している）。
-        if (data.alive === null) {
-          setMonitor('warn', T.neverBeat, T.silentSub);
-        } else if (data.alive === false) {
-          setMonitor('warn', T.silent, T.silentSub);
-        } else if (data.monitoring !== true) {
-          setMonitor('warn', T.notMonitoring, '');
-        } else {
-          setMonitor('ok', T.alive, '');
-        }
-        // ⛔ 応答が無くても撃たせる。撃てないのは連携が無いときだけ。
+        // ⛔ **2026-09-22 に生存監視をやめた。** 中継は「たぶん生きている」を返さない。
+        //    ⇒ ここでも「応答しています」と言わない。**言えるのは連携が在ることだけ。**
+        setMonitor('ok', T.linked, T.linkedSub);
         $('shoot').disabled = false;
       }
 
