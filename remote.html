@@ -505,6 +505,12 @@
           setStatus(requestError(httpStatus, data), 'bad');
           polling = false;
           $('shoot').disabled = false;
+          // ⛔⛔ **失敗したら、連携の表示を取り直す。**
+          //   [Codex 指摘 2026-09-22] ここで取り直していなかったので、
+          //   中継が「宛先が死んでいる」と判断して見張り役を降ろしても、
+          //   **開いているページは「連携しています」と言ったままボタンを押させた。**
+          //   ⛔ 401 のときは入口へ戻っているので呼ばない（呼ぶと 401 が 2 度 出る）。
+          if (httpStatus !== 401) refreshMonitor();
           return;
         }
         setStatus(T.waiting, '');
