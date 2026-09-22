@@ -128,9 +128,11 @@
       const CLIENT_ID =
         '31658246526-uab0pnvikv4qels3b5sh81dvmblonv6n.apps.googleusercontent.com';
 
-      // 結果を待つ長さ。⛔ 中継の結果は 10 分で消える。
+      // 結果を待つ長さ。
+      // ⛔ **[Masahiro 指示 2026-09-22] 利用者は 10 秒より長く待たない。**
+      //    90 秒 待たせていたのをやめ、10 秒で打ち切って理由を出す。
       const POLL_INTERVAL_MS = 2000;
-      const POLL_TIMEOUT_MS = 90000;
+      const POLL_TIMEOUT_MS = 10000;
 
       const I18N = {
         en: {
@@ -150,7 +152,7 @@
           waiting: 'Waiting for the phone to take the photo…',
           captured: 'Done. The photo is on its way to your email.',
           capturedPending: 'Photo taken. It will be emailed as soon as the phone is back online.',
-          timeout: 'No answer within 90 seconds. The phone may be offline.',
+          timeout: 'No answer from the app. Monitoring may not be running on the phone, or the phone may have no internet connection.',
           errAuth: 'Your sign-in expired. Please sign in again.',
           errNoMonitor: 'No watching phone is linked to this Google account.',
           errNoToken: 'The watching phone cannot receive requests. Reopen the app on it once.',
@@ -189,7 +191,7 @@
           waiting: 'スマホが撮影するのを待っています…',
           captured: '撮影が完了しました。Gmailへ送信済みです。',
           capturedPending: '撮影が完了しました。スマホが通信できるようになり次第、Gmailへ送信されます。',
-          timeout: '90 秒待っても応答がありません。スマホが圏外か、停止している可能性があります。',
+          timeout: 'アプリから応答が得られません。アプリ側で監視が開始されていないか、インターネットに接続されていない可能性があります。',
           errAuth: 'ログインの有効期限が切れました。もう一度ログインしてください。',
           errNoMonitor: 'このGoogleアカウントには、駐車監視中のスマホが登録されていません。',
           errNoToken: '駐車監視中のスマホが依頼を受け取れません。そのスマホでアプリを一度 開いてください。',
@@ -226,7 +228,7 @@
           waiting: 'Warten, bis das Telefon das Foto macht…',
           captured: 'Fertig. Das Foto ist auf dem Weg zu Ihrer E-Mail.',
           capturedPending: 'Foto aufgenommen. Es wird gesendet, sobald das Telefon wieder online ist.',
-          timeout: 'Keine Antwort innerhalb von 90 Sekunden. Das Telefon ist möglicherweise offline.',
+          timeout: 'Keine Antwort von der App. Möglicherweise läuft die Überwachung auf dem Telefon nicht oder es hat keine Internetverbindung.',
           errAuth: 'Ihre Anmeldung ist abgelaufen. Bitte erneut anmelden.',
           errNoMonitor: 'Mit diesem Google-Konto ist kein überwachendes Telefon verknüpft.',
           errNoToken: 'Das Telefon kann keine Anfragen empfangen. Öffnen Sie dort die App einmal.',
@@ -264,7 +266,7 @@
           waiting: 'Esperando a que el teléfono haga la foto…',
           captured: 'Listo. La foto va camino de tu correo.',
           capturedPending: 'Foto hecha. Se enviará en cuanto el teléfono vuelva a tener conexión.',
-          timeout: 'Sin respuesta en 90 segundos. El teléfono puede estar sin conexión.',
+          timeout: 'La app no responde. Puede que la vigilancia no esté activa en el teléfono o que no tenga conexión a internet.',
           errAuth: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
           errNoMonitor: 'No hay ningún teléfono vigilante vinculado a esta cuenta de Google.',
           errNoToken: 'El teléfono no puede recibir peticiones. Abre la app en él una vez.',
