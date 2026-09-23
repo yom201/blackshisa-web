@@ -764,6 +764,69 @@ h2 {
   height: auto;
 }
 
+.remote-capture-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle at 80% 30%, rgba(212, 166, 64, 0.09), transparent 32rem);
+}
+
+.remote-capture-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+}
+
+.remote-capture-copy h2 {
+  font-size: clamp(2.3rem, 4.2vw, 4rem);
+  line-height: 1.05;
+}
+
+.remote-capture-copy .lede {
+  font-size: clamp(1.08rem, 1.6vw, 1.25rem);
+}
+
+.remote-capture-note {
+  margin-top: 16px;
+  color: var(--muted);
+}
+
+.remote-capture-copy .button {
+  margin-top: 28px;
+}
+
+.remote-capture-gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.remote-capture-shot {
+  min-width: 0;
+  margin: 0;
+}
+
+.remote-capture-shot .screen-open {
+  height: auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.remote-capture-shot .screen-open img {
+  height: auto;
+  object-fit: contain;
+}
+
+.remote-capture-shot figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 .security-light-link-section {
   padding-top: 16px;
 }
@@ -1623,6 +1686,10 @@ body.legal-page::before {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.guide-related-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .guide-related-grid a {
   display: grid;
   gap: 10px;
@@ -1646,11 +1713,13 @@ body.legal-page::before {
   line-height: 1.2;
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1180px) {
   .nav-links .hide-small {
     display: none;
   }
+}
 
+@media (max-width: 920px) {
   .hero-phone {
     width: 210px;
   }
@@ -1682,6 +1751,7 @@ body.legal-page::before {
 
   .setup-copy,
   .product-stage,
+  .remote-capture-layout,
   .security-light-teaser,
   .faq,
   .guide-hero-grid,
@@ -1691,6 +1761,11 @@ body.legal-page::before {
 
   .security-light-teaser-image {
     min-height: 360px;
+  }
+
+  .remote-capture-gallery {
+    width: min(100%, 620px);
+    margin: 0 auto;
   }
 
   .setup-copy .lede {

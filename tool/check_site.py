@@ -16,6 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "https://blackshisa.com"
 VERIFICATION_PAGE = "googlec9b4c510fa66e954.html"
+NOINDEX_UTILITY_PAGES = {"remote.html"}
 FORBIDDEN_FOCUSED_PATHS = (
     "seo/generate.py",
     "seo/topics.json",
@@ -39,8 +40,6 @@ EXPECTED_PUBLIC_URLS = {
     f"{ORIGIN}/ja/parking-mode-app.html",
     f"{ORIGIN}/parking-lot-hit-and-run-evidence.html",
     f"{ORIGIN}/ja/parking-lot-hit-and-run-evidence.html",
-    f"{ORIGIN}/dash-cam-parking-mode-alternative.html",
-    f"{ORIGIN}/ja/dash-cam-parking-mode-alternative.html",
     f"{ORIGIN}/door-ding-evidence.html",
     f"{ORIGIN}/car-vandalism-evidence.html",
     f"{ORIGIN}/spare-phone-car-security-camera.html",
@@ -83,12 +82,6 @@ ALTERNATE_CLUSTERS = (
         **{
             "en-US": f"{ORIGIN}/parking-lot-hit-and-run-evidence.html",
             "ja-JP": f"{ORIGIN}/ja/parking-lot-hit-and-run-evidence.html",
-        }
-    ),
-    alternate_cluster(
-        **{
-            "en-US": f"{ORIGIN}/dash-cam-parking-mode-alternative.html",
-            "ja-JP": f"{ORIGIN}/ja/dash-cam-parking-mode-alternative.html",
         }
     ),
 )
@@ -287,6 +280,7 @@ def main() -> int:
         "llms.txt",
         "site.webmanifest",
         VERIFICATION_PAGE,
+        *NOINDEX_UTILITY_PAGES,
     )
     for relative in required_files:
         if not (ROOT / relative).is_file():
@@ -306,8 +300,12 @@ def main() -> int:
     public_pages = {
         path: page
         for path, page in pages.items()
-        if path.name != VERIFICATION_PAGE
+        if path.name != VERIFICATION_PAGE and path.relative_to(ROOT).as_posix() not in NOINDEX_UTILITY_PAGES
     }
+    for relative in NOINDEX_UTILITY_PAGES:
+        utility = pages.get((ROOT / relative).resolve())
+        if utility and utility.robots != ["noindex,nofollow"]:
+            errors.append(f"{relative}: utility page must use noindex,nofollow")
     canonical_pages: dict[str, Page] = {}
     title_pages: dict[str, Path] = {}
     description_pages: dict[str, Path] = {}
@@ -319,8 +317,6 @@ def main() -> int:
         "ja/parking-mode-app.html",
         "parking-lot-hit-and-run-evidence.html",
         "ja/parking-lot-hit-and-run-evidence.html",
-        "dash-cam-parking-mode-alternative.html",
-        "ja/dash-cam-parking-mode-alternative.html",
         "door-ding-evidence.html",
         "car-vandalism-evidence.html",
         "spare-phone-car-security-camera.html",
