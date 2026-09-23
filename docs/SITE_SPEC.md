@@ -1,6 +1,6 @@
 # BlackShisaサイト全体仕様書
 
-最終更新日: 2026-08-27
+最終更新日: 2026-09-23
 
 対象リポジトリ: `yom201/blackshisa-web`
 
@@ -81,7 +81,7 @@ blackshisa-web/
 ├── seo/
 │   └── AUDIT-JA-3KEYWORDS-2026-08-13.md
 ├── tool/
-│   └── check_site.py                # 現行22ページ用の必須検査
+│   └── check_site.py                # 公開ページ用の必須検査
 ├── CNAME                            # GitHub Pages独自ドメイン
 ├── .nojekyll                        # Jekyll無効化
 ├── robots.txt
@@ -97,7 +97,7 @@ blackshisa-web/
 
 | 区分 | 数 | 備考 |
 | --- | ---: | --- |
-| 通常HTML | 22 | canonicalとsitemapの対象 |
+| 通常HTML | 20 | 比較ページ削除後のcanonicalとsitemapの対象 |
 | Google確認HTML | 1 | 通常ページ検査の例外 |
 | 画像 | 69 | WebP配信用派生19件と、保持中の原本・旧形式を含む |
 | CSS | 2 | 共通とSecurity Light専用 |
@@ -116,7 +116,7 @@ GitHub Pagesは`main`直下を配信します。リポジトリへコミット�
 
 ## 4. URLインベントリ
 
-通常公開ページは22件です。`sitemap.xml`もこの22件だけを持ちます。
+比較ページ削除後の通常公開ページは20件です。`sitemap.xml`もこの20件だけを持ちます。
 
 ### 4.1 ホーム
 
@@ -125,7 +125,7 @@ GitHub Pagesは`main`直下を配信します。リポジトリへコミット�
 | 英語 | `/` | `index.html` | 英語製品ホーム |
 | ドイツ語 | `/de/` | `de/index.html` | ドイツ語製品ホーム |
 | スペイン語 | `/es/` | `es/index.html` | スペイン語製品ホーム |
-| 日本語 | `/ja/` | `ja/index.html` | 日本語製品ホーム。「当て逃げ監視 アプリ」担当 |
+| 日本語 | `/ja/` | `ja/index.html` | 日本語製品ホーム。駐車監視アプリとリモート撮影を紹介 |
 
 ### 4.2 Parking mode app
 
@@ -145,16 +145,13 @@ GitHub Pagesは`main`直下を配信します。リポジトリへコミット�
 | スペイン語 | `/es/security-light.html` | `es/security-light.html` | スペイン語版 |
 | 日本語 | `/ja/security-light.html` | `ja/security-light.html` | 日本語版 |
 
-### 4.4 当て逃げ・ドラレコ比較
+### 4.4 当て逃げ記録ガイド
 
 | 言語 | URL | ファイル | 役割 |
 | --- | --- | --- | --- |
 | 英語 | `/parking-lot-hit-and-run-evidence.html` | 同名HTML | 英語の当て逃げ証拠ガイド |
 | 日本語 | `/ja/parking-lot-hit-and-run-evidence.html` | 同名HTML | 当て逃げ録画設定・元動画保全・被害後確認の補助ガイド |
-| 英語 | `/dash-cam-parking-mode-alternative.html` | 同名HTML | 英語の専用ドラレコ代替比較 |
-| 日本語 | `/ja/dash-cam-parking-mode-alternative.html` | 同名HTML | 「ドラレコ アプリ」担当。用途別比較 |
-
-この2組にはドイツ語・スペイン語ページがありません。存在しない翻訳URLをhreflangや言語切替へ追加しません。
+この2ページにはドイツ語・スペイン語版がありません。存在しない翻訳URLをhreflangや言語切替へ追加しません。
 
 ### 4.5 英語単独ガイド
 
@@ -235,18 +232,19 @@ Google確認ファイルはtitle、H1、canonicalを持たない例外です。�
 6. Parking mode導線
 7. 仕組み・利用例
 8. 検知機能
-9. Security Light導線
-10. プライバシー
-11. 制約・熱・OS差
-12. FAQ
-13. 料金・Google Play導線
-14. footer
+9. リモート撮影紹介
+10. Security Light導線
+11. プライバシー
+12. 制約・熱・OS差
+13. FAQ
+14. 料金・Google Play導線
+15. footer
 
-日本語ホームだけは重点SEOのため、運営者・確認方法と重点3テーマ導線を追加しています。別言語へ機械翻訳して同じSEO設計を移植しません。
+英語・ドイツ語・スペイン語・日本語の各ホームに同じ2枚の画面例と、各言語の短い紹介を掲載します。撮影ページは4言語切替付きの`/remote.html`へ接続します。
 
 ### 6.2 実践ガイド
 
-対象: Parking mode、hit-and-run、dash-cam比較、英語単独ガイド
+対象: Parking mode、hit-and-run、英語単独ガイド
 
 重点日本語ガイドの標準構成:
 
@@ -256,13 +254,13 @@ Google確認ファイルはtitle、H1、canonicalを持たない例外です。�
 4. 3枚のsummary card
 5. 作成方法・未実測事項のeditorial note
 6. 本文articleとsticky side panel
-7. 必要に応じ比較表・一次資料
+7. 必要に応じ一次資料
 8. visible FAQ
 9. 関連3ページ
 10. CTA
 11. footer
 
-比較表は`.guide-comparison-wrap`の中に置きます。表自体の最小幅は860pxとし、狭い画面ではページ全体ではなくwrapperだけを横スクロールさせます。
+他社製品との比較記事や比較表は掲載しません。
 
 ### 6.3 Security Light
 
@@ -292,12 +290,12 @@ Google確認ファイルはtitle、H1、canonicalを持たない例外です。�
 | 日本語ホーム | 機能、Security Light、駐車監視アプリ、Privacy、FAQ、4言語 | 4言語、Privacy、EULA |
 | Security Light | ページ内導線、ホーム、4言語 | ホーム、Privacy、EULA |
 | EN/DE/ES Parking mode | ホーム、Features、Privacy、4言語 | ホーム、Privacy、EULA |
-| 日本語Parking mode | ホーム、ドラレコ比較、機能、4言語 | ホーム、駐車監視アプリ、Privacy |
+| 日本語Parking mode | ホーム、機能、4言語 | ホーム、駐車監視アプリ、Privacy |
 | 英語ガイド | ホーム、Features、Guides、Privacy | ホーム、Guides、Privacy、EULA |
-| 日本語hit-and-run・dash-cam | ホーム、駐車監視アプリ、機能、EN/JA | ホーム、駐車監視アプリ、Privacy |
+| 日本語hit-and-run | ホーム、駐車監視アプリ、機能、EN/JA | ホーム、駐車監視アプリ、Privacy |
 | 法務 | Features、Privacy、EULA | ホーム、Privacy、EULA |
 
-EN/JA hreflangを持つ英語hit-and-run・dash-camページは、headで相互参照しますが、狭幅headerのoverflowを避けるため表示上の日本語切替を置いていません。hreflangと可視言語切替は別の仕組みです。
+EN/JA hreflangを持つ英語hit-and-runページは、headで相互参照しますが、狭幅headerのoverflowを避けるため表示上の日本語切替を置いていません。hreflangと可視言語切替は別の仕組みです。
 
 日本語重点ガイドのfooterには現在EULAリンクがありません。将来footerを統一する場合は、全ページを機械置換せず、ルート階層ごとの相対URLと390px表示を確認します。
 
@@ -387,6 +385,8 @@ JavaScriptへページ固有のSEO本文を持たせません。主要コンテ�
 | `use-case01.webp` | 1536×1024 | 昼の利用例 |
 | `use-case02.webp` | 1536×1024 | 夜の利用例 |
 | `security-light/parked-car.webp` | 1536×1024 | Security Light導線 |
+| `remote-capture-setting.webp` | 720×1612 | 日本語ホームのリモート撮影設定画面 |
+| `remote-capture-web.webp` | 1082×1454 | 日本語ホームのWeb撮影画面。メールアドレスを匿名化し、提供画像のステータス文を英語にそろえた掲載用画像 |
 
 旧PNG・JPEGの多くは配信参照をWebPへ切り替えましたが、原本・復旧素材として保持しています。ファイルサイズが大きいという理由だけで一括削除しません。削除前に`rg`で全HTML/CSS/JSからの参照が0件であることを確認します。
 
@@ -468,25 +468,24 @@ visible FAQは利用者向けコンテンツとして維持します。FAQ構造
 - hreflangなどmetadataだけを変更した場合、sitemap lastmodだけが新しくなることは許容します。
 - 単なる再ビルド・再保存の日をlastmodへ使いません。
 
-## 11. 日本語重点3キーワードのURL所有権
+## 11. 日本語ページの役割
 
-この章は日本語検索だけの契約です。他言語へ機械的に一般化しません。
+この章は日本語ページの役割を整理します。他言語へ機械的に一般化しません。
 
-| 検索意図 | 担当URL | ページの仕事 |
+| 利用者の目的 | 担当URL | ページの仕事 |
 | --- | --- | --- |
-| `駐車監視 アプリ` | `/ja/parking-mode-app.html` | 4種類の「駐車監視」を分類し、BlackShisaの設定と制約を説明 |
-| `当て逃げ監視 アプリ` | `/ja/` | 製品、機能、料金、導入判断の中心 |
-| `ドラレコ アプリ` | `/ja/dash-cam-parking-mode-alternative.html` | 走行録画・駐車監視・車載機連携を比較 |
+| 製品の機能と料金を知る | `/ja/` | 駐車監視アプリの紹介、リモート撮影、料金、導入判断の中心 |
+| 設定方法を調べる | `/ja/parking-mode-app.html` | 4種類の「駐車監視」を分類し、BlackShisaの設定と制約を説明 |
+| 当て逃げに備える | `/ja/parking-lot-hit-and-run-evidence.html` | 録画設定、元動画保全、被害後の確認を説明 |
 
-`/ja/parking-lot-hit-and-run-evidence.html`は、当て逃げに備える録画設定、元動画保全、被害後の相談を詳しく説明する補助ページです。「当て逃げ監視 アプリ」の主担当ではありません。
+日本語ホームに置いていた重点検索語の案内セクションは2026-09-23に削除しました。
 
 ### 11.1 内部リンク規則
 
-- exactに近い「当て逃げ監視アプリ」アンカーは`/ja/`へ集約します。
-- 「駐車監視アプリ」は`/ja/parking-mode-app.html`へ集約します。
-- 「ドラレコアプリ比較」「専用ドラレコとの違い」は`/ja/dash-cam-parking-mode-alternative.html`へ送ります。
+- 製品の機能と料金を説明するアンカーは`/ja/`へ向けます。
+- 設定手順のアンカーは`/ja/parking-mode-app.html`へ向けます。
 - 補助ページへのアンカーは「録画設定と被害後の確認」など、補助タスクを表す文言にします。
-- 3語を全ページのtitle/H1へ詰め込みません。
+- 異なる検索語を全ページのtitle/H1へ詰め込みません。
 - 同じ検索意図の新規ページを増やす前に、担当URLへ追記できないかを確認します。
 
 ### 11.2 URLを変更しない理由
@@ -536,11 +535,10 @@ Webサイトはアプリ実装より先に機能を発明してはいけませ�
 - BlackShisaの価格と無料期間
 - 配信OS、対応要件、公開状態
 - Google Play URLとpackage ID
-- 他社アプリの価格、OS、機能、更新日
 - Apple・Google・Android・国土交通省などの案内URL
 - 法律・プライバシー・保険・警察手続
 
-比較記事には確認日、公式出典、BlackShisa運営者による比較であること、他社アプリを実機評価していない場合はその事実を表示します。
+他社製品の比較コンテンツは掲載しません。
 
 ## 13. アクセシビリティ契約
 
@@ -549,7 +547,6 @@ Webサイトはアプリ実装より先に機能を発明してはいけませ�
 - 言語切替、パンくず、lightboxに意味のある`aria-label`を付けます。
 - 現在ページ・現在言語は`aria-current`で示します。
 - FAQはnativeの`details`と`summary`を使います。
-- 比較表の見出しは`th scope="col"`です。
 - キーボードfocusが見える状態を維持します。
 - `prefers-reduced-motion`で不要な動きを抑えます。
 - 画像altは用途に合わせます。
@@ -574,7 +571,7 @@ Sitemap: https://blackshisa.com/sitemap.xml
 
 ### 14.2 sitemap.xml
 
-- index対象22 URLを1回ずつ列挙します。
+- index対象20 URLを1回ずつ列挙します。
 - canonical URLと完全一致させます。
 - Google所有権確認ファイルは含めません。
 - hreflangを持つページはHTMLと同じalternate集合を持ちます。
@@ -585,8 +582,8 @@ Sitemap: https://blackshisa.com/sitemap.xml
 
 - BlackShisaの短い説明、主要機能、主要ページ、Google Play、robots、sitemapを記載します。
 - 「顔やナンバーを必ず読める」など保証表現を入れません。
-- index対象22ページのうち法務2ページをPages一覧から除き、主要コンテンツ20ページを載せています。
-- Resourcesとしてrobotsとsitemapを載せるため、BlackShisaドメインのunique URLは合計22件です。
+- index対象20ページのうち法務2ページをPages一覧から除き、主要コンテンツ18ページを載せています。
+- Resourcesとしてrobotsとsitemapを載せるため、BlackShisaドメインのunique URLは合計20件です。
 - 新しい主要ページを追加・削除したときは同じPull Requestで更新します。
 
 ### 14.4 manifestとGoogle確認
@@ -686,7 +683,7 @@ git status --short --branch
 6. 翻訳が実在する場合だけ相互hreflangを全メンバーへ追加する。
 7. sitemapへ追加する。
 8. 主要ページならllmsへ追加する。
-9. 意図した構造変更として`tool/check_site.py`の`EXPECTED_PUBLIC_URLS`と翻訳クラスターも更新する。checkerは事故による削除・追加を検知するため、現行22 URLを明示的に固定している。
+9. 意図した構造変更として`tool/check_site.py`の`EXPECTED_PUBLIC_URLS`と翻訳クラスターも更新する。checkerは事故による削除・追加を検知するため、現行20 URLを明示的に固定している。
 10. デスクトップ幅と390px幅で表示確認する。
 
 ### 16.5 ページ削除・URL変更
@@ -731,7 +728,7 @@ jq empty site.webmanifest
 - CSSのローカル`url()`参照
 - ローカルfragmentの実在
 - hreflangの重複、自己参照、対象言語、target、相互性
-- 現行22 URLと定義済み翻訳クラスターからの意図しない増減
+- 現行20 URLと定義済み翻訳クラスターからの意図しない増減
 - ホームから可視リンクで到達でき、2クリック以内であること
 - sitemapとcanonical全件の完全一致
 - sitemap hreflangとHTML hreflangの一致
@@ -756,7 +753,6 @@ python3 -m http.server 8765
 - ナビ、言語切替、内部リンク、footer
 - 画像表示とaltの妥当性
 - 390×844で文書全体の横overflowがないこと
-- 比較表だけがwrapper内で横スクロールすること
 - lightboxの開閉、Escape、矢印、focus return
 - Browser Consoleにerror/warningがないこと
 - 外部一次資料とストアリンクが有効なこと
@@ -889,7 +885,7 @@ GitHub Pagesのドメイン所有権確認TXTは2026-08-13の監査で確認で�
 - [ ] `README.md`と本仕様書を読んだ
 - [ ] `origin/main`から作業ブランチを作った
 - [ ] 変更対象URLと検索意図を確認した
-- [ ] 3キーワードの担当URLを侵食しない
+- [ ] 既存ページの検索意図を侵食しない
 - [ ] 製品事実・価格・外部出典を確認した
 - [ ] 40ガイド生成案を混ぜていない
 
