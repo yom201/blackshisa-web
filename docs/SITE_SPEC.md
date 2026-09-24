@@ -237,7 +237,7 @@ Google確認ファイルはtitle、H1、canonicalを持たない例外です。�
 11. プライバシー
 12. 制約・熱・OS差
 13. FAQ
-14. 料金・Google Play導線
+14. 料金・Google Play／App Store導線
 15. footer
 
 英語・ドイツ語・スペイン語・日本語の各ホームに同じ2枚の画面例と、各言語の短い紹介を掲載します。撮影ページは4言語切替付きの`/remote.html`へ接続します。
@@ -388,6 +388,8 @@ JavaScriptへページ固有のSEO本文を持たせません。主要コンテ�
 | `remote-capture-setting.webp` | 720×1612 | 日本語ホームのリモート撮影設定画面 |
 | `remote-capture-web.webp` | 1082×1454 | 日本語ホームのWeb撮影画面。メールアドレスを匿名化し、提供画像のステータス文を英語にそろえた掲載用画像 |
 
+4言語の料金セクションでは、Google PlayのQRと各地域のApp StoreのQR（`app-store-qr-{us,de,es,jp}.png`、各564×564）を並べます。QR画像とボタンは同じストアURLへリンクします。
+
 旧PNG・JPEGの多くは配信参照をWebPへ切り替えましたが、原本・復旧素材として保持しています。ファイルサイズが大きいという理由だけで一括削除しません。削除前に`rg`で全HTML/CSS/JSからの参照が0件であることを確認します。
 
 ### 9.3 新しい画像の受け入れ条件
@@ -535,6 +537,7 @@ Webサイトはアプリ実装より先に機能を発明してはいけませ�
 - BlackShisaの価格と無料期間
 - 配信OS、対応要件、公開状態
 - Google Play URLとpackage ID
+- App Storeの地域別URLとApple ID
 - Apple・Google・Android・国土交通省などの案内URL
 - 法律・プライバシー・保険・警察手続
 
@@ -580,7 +583,7 @@ Sitemap: https://blackshisa.com/sitemap.xml
 
 ### 14.3 llms.txt
 
-- BlackShisaの短い説明、主要機能、主要ページ、Google Play、robots、sitemapを記載します。
+- BlackShisaの短い説明、主要機能、主要ページ、Google Play、App Store、robots、sitemapを記載します。
 - 「顔やナンバーを必ず読める」など保証表現を入れません。
 - index対象20ページのうち法務2ページをPages一覧から除き、主要コンテンツ18ページを載せています。
 - Resourcesとしてrobotsとsitemapを載せるため、BlackShisaドメインのunique URLは合計20件です。
