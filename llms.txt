@@ -31,5 +31,6 @@ Drive and notify you by Gmail.
 
 ## Resources
 - Google Play (Android): https://play.google.com/store/apps/details?id=app.blackshisa.blackShisaApp
+- App Store (iPhone): https://apps.apple.com/us/app/id6794595128
 - Sitemap: https://blackshisa.com/sitemap.xml
 - Robots: https://blackshisa.com/robots.txt

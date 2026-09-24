@@ -1082,14 +1082,21 @@ h2 {
   background: rgba(255, 255, 255, 0.045);
 }
 
+.store-downloads {
+  display: grid;
+  width: min(100%, 1100px);
+  margin: 30px auto 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .store-download {
   display: grid;
-  width: min(100%, 680px);
-  margin: 30px auto 0;
-  padding: 24px;
-  grid-template-columns: 184px minmax(0, 1fr);
+  min-width: 0;
+  padding: 20px;
+  grid-template-columns: 140px minmax(0, 1fr);
   align-items: center;
-  gap: 28px;
+  gap: 20px;
   border: 1px solid rgba(242, 210, 122, 0.28);
   border-radius: 8px;
   text-align: left;
@@ -1132,6 +1139,18 @@ h2 {
 
 .store-download-copy .button {
   margin-top: 18px;
+}
+
+@media (max-width: 1040px) {
+  .store-downloads {
+    width: min(100%, 680px);
+    grid-template-columns: 1fr;
+  }
+
+  .store-download {
+    grid-template-columns: 184px minmax(0, 1fr);
+    gap: 28px;
+  }
 }
 
 .footer {
