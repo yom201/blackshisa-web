@@ -5,6 +5,8 @@ Checks, one finding per link / page:
   - App Store <a href> without ct=, or with a ct that is not this page's name.
   - Google Play <a href> without referrer=, or with a utm_campaign that is not this page's name.
   - An HTML page that does not load assets/js/store-links.js.
+  - An HTML page without <meta name="apple-itunes-app" content="app-id=6794595128">.
+  - A JSON-LD SoftwareApplication whose downloadUrl does not include the App Store.
   - The click counter script itself no longer sends to submitWebEvent.
 
 Exit 1 when anything is found.
@@ -19,6 +21,7 @@ Scope and limits (on purpose):
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import sys
@@ -48,6 +51,9 @@ class LinkParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.links: list[tuple[int, str]] = []
         self.scripts: list[str] = []
+        self.itunes_meta: list[str] = []
+        self.json_ld: list[str] = []
+        self._in_json_ld = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = {k: (v or "") for k, v in attrs}
@@ -55,6 +61,32 @@ class LinkParser(HTMLParser):
             self.links.append((self.getpos()[0], values["href"]))
         if tag == "script" and values.get("src"):
             self.scripts.append(values["src"])
+        if tag == "meta" and values.get("name", "").lower() == "apple-itunes-app":
+            self.itunes_meta.append(values.get("content", ""))
+        if tag == "script" and values.get("type", "").lower() == "application/ld+json":
+            self._in_json_ld = True
+            self.json_ld.append("")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "script":
+            self._in_json_ld = False
+
+    def handle_data(self, data: str) -> None:
+        if self._in_json_ld:
+            self.json_ld[-1] += data
+
+
+def software_nodes(value: object) -> list[dict]:
+    found: list[dict] = []
+    if isinstance(value, dict):
+        if value.get("@type") == "SoftwareApplication":
+            found.append(value)
+        for child in value.values():
+            found.extend(software_nodes(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.extend(software_nodes(child))
+    return found
 
 
 def html_files() -> list[str]:
@@ -142,6 +174,19 @@ def main() -> int:
 
         if not loads_counter(path, parser.scripts):
             findings.append(f"{rel}: does not load {SCRIPT_PATH}")
+        if parser.itunes_meta != ["app-id=6794595128"]:
+            findings.append(f"{rel}: apple-itunes-app meta is {parser.itunes_meta!r}")
+        for index, raw in enumerate(parser.json_ld, 1):
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                findings.append(f"{rel}: JSON-LD #{index} does not parse")
+                continue
+            for node in software_nodes(data):
+                urls = node.get("downloadUrl", [])
+                urls = [urls] if isinstance(urls, str) else urls
+                if not any(APP_STORE_HOST in str(url) for url in urls):
+                    findings.append(f"{rel}: JSON-LD SoftwareApplication has no App Store downloadUrl")
 
     summary = (
         f"{counts['pages']} pages, {counts['app_store']} App Store links, "

@@ -2073,3 +2073,23 @@ body.legal-page::before {
     transition: none !important;
   }
 }
+
+/* Store download row (guide pages, pricing note). */
+.store-cta-section {
+  padding: 40px 0;
+}
+
+.store-cta {
+  text-align: center;
+}
+
+.store-cta .hero-actions {
+  margin-top: 0;
+}
+
+.store-cta-note {
+  width: min(100%, 620px);
+  margin: 14px auto 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
