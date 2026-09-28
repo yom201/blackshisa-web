@@ -23,6 +23,11 @@ jobs:
           PYTHONDONTWRITEBYTECODE: "1"
         run: python3 tool/check_site.py
 
+      - name: Check store links carry their source mark
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 tool/check_store_links.py
+
       - name: Check pull request whitespace errors
         if: github.event_name == 'pull_request'
         run: git diff --check "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
