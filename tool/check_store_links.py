@@ -8,6 +8,7 @@ Checks, one finding per link / page:
   - An HTML page without <meta name="apple-itunes-app" content="app-id=6794595128">.
   - A JSON-LD SoftwareApplication whose downloadUrl does not include the App Store.
   - The click counter script itself no longer sends to submitWebEvent.
+  - The script's App Store provider token (pt) differs from the shared fixture.
 
 Exit 1 when anything is found.
 
@@ -35,6 +36,7 @@ APP_STORE_HOST = "apps.apple.com"
 PLAY_PREFIX = "https://play.google.com/store/apps/details"
 CT_RE = re.compile(r"^[a-z0-9_]{1,40}$")
 LANG_DIRS = {"de", "es", "ja"}
+EXPECTED_PT = "128814295"
 
 
 def page_name(rel: str) -> str:
@@ -133,6 +135,28 @@ def main() -> int:
         ):
             if needle not in body:
                 findings.append(f"{SCRIPT_PATH}: does not contain {needle}")
+        # pt (App Store provider token, read in App Store Connect on 2026-10-04).
+        # Always: the script's constant equals EXPECTED_PT.
+        # Locally, when the work tree sits next to this repo: also equals the shared fixture
+        # (CI checks out this repo alone, so the fixture is not there).
+        # Runtime use (every App Store link gets it) is checked by tool/test_store_links.js.
+        match = re.search(r'PROVIDER_TOKEN = "([0-9]+)"', body)
+        if match is None:
+            findings.append(f"{SCRIPT_PATH}: no PROVIDER_TOKEN constant")
+        elif match.group(1) != EXPECTED_PT:
+            findings.append(f"{SCRIPT_PATH}: PROVIDER_TOKEN={match.group(1)!r}, expected {EXPECTED_PT!r}")
+        fixture = os.path.join(ROOT, "..", "blackshisa_work", "tool", "fixtures", "ad_attribution_chain.json")
+        if os.path.isfile(fixture):
+            try:
+                with open(fixture, encoding="utf-8") as handle:
+                    fixture_pt = json.load(handle)["pt"]
+            except (OSError, ValueError, KeyError) as error:
+                findings.append(f"cannot read the shared fixture {fixture}: {error}")
+            else:
+                if fixture_pt != EXPECTED_PT:
+                    findings.append(f"shared fixture pt={fixture_pt!r}, expected {EXPECTED_PT!r}")
+        else:
+            print(f"note: shared fixture not found ({fixture}); compared pt with EXPECTED_PT only")
 
     for path in html_files():
         rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
