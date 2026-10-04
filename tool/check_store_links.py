@@ -8,6 +8,7 @@ Checks, one finding per link / page:
   - An HTML page without <meta name="apple-itunes-app" content="app-id=6794595128">.
   - A JSON-LD SoftwareApplication whose downloadUrl does not include the App Store.
   - The click counter script itself no longer sends to submitWebEvent.
+  - The script's App Store provider token (pt) differs from the shared fixture.
 
 Exit 1 when anything is found.
 
@@ -133,6 +134,22 @@ def main() -> int:
         ):
             if needle not in body:
                 findings.append(f"{SCRIPT_PATH}: does not contain {needle}")
+        # pt (App Store provider token): the script's constant must equal the shared fixture.
+        # Runtime use (every App Store link gets it) is checked by tool/test_store_links.js.
+        fixture = os.path.join(ROOT, "..", "blackshisa_work", "tool", "fixtures", "ad_attribution_chain.json")
+        match = re.search(r'PROVIDER_TOKEN = "([0-9]+)"', body)
+        try:
+            with open(fixture, encoding="utf-8") as handle:
+                expected_pt = json.load(handle)["pt"]
+        except (OSError, ValueError, KeyError) as error:
+            findings.append(f"cannot read the shared fixture {fixture}: {error}")
+        else:
+            if match is None:
+                findings.append(f"{SCRIPT_PATH}: no PROVIDER_TOKEN constant")
+            elif match.group(1) != expected_pt:
+                findings.append(
+                    f"{SCRIPT_PATH}: PROVIDER_TOKEN={match.group(1)!r}, fixture pt={expected_pt!r}"
+                )
 
     for path in html_files():
         rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
