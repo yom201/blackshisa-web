@@ -126,15 +126,15 @@ async function main() {
     eq(res.fetchBodies.length, 0, `${c.name}: beacon が受け付けたら fetch しない`);
   }
 
-  // --- 読み込み中の分岐 -------------------------------------------------------
-  for (const c of FIXTURE.cases.filter((x) => x.ads)) {
-    const r = run(c.landing_url, { loading: true });
-    for (const l of r.links.filter((x) => storeOf(x._href) === 'android')) {
-      eq(playReferrer(l._href), c.play_referrer, `${c.name}: 読み込み中の分岐の referrer`);
-    }
-    for (const l of r.links.filter((x) => storeOf(x._href) === 'ios')) {
-      eq(new URL(l._href).searchParams.get('pt'), FIXTURE.pt, `${c.name}: 読み込み中の分岐の pt`);
-    }
+  // --- 読み込み中の分岐：読み込み済みと全リンク・クリックの本文が同じ ---------
+  for (const c of FIXTURE.cases) {
+    const done = run(c.landing_url);
+    const loading = run(c.landing_url, { loading: true });
+    eq(loading.links.map((l) => l._href), done.links.map((l) => l._href), `${c.name}: 読み込み中の分岐の全リンク`);
+    const pick = (r) => r.links.find((l) => storeOf(l._href) === 'android');
+    const a1 = await done.click(pick(done));
+    const a2 = await loading.click(pick(loading));
+    eq(a2.beaconBodies, a1.beaconBodies, `${c.name}: 読み込み中の分岐のクリックの本文`);
   }
 
   // --- beacon が false のとき、同じ本文で fetch を 1 回 ------------------------
@@ -225,6 +225,23 @@ async function main() {
     for (const l of r.links) {
       assert.ok(!/script|DE_APP|Search-DE/.test(l._href), `不正な原文がリンクに残った（${t.label}）: ${l._href}`);
     }
+    // 移った先でも、検査済みの実効値（ページ名の ad など）がそのまま使われる。
+    let followed = 0;
+    for (const l of r.links) {
+      if (storeOf(l._href) || /^(mailto:|#)/i.test(l._href)) continue;
+      const target = new URL(l._href, base + t.q);
+      if (target.host !== 'blackshisa.com' || !fs.existsSync(pageFile(target.pathname))) continue;
+      const next = run(target.href);
+      const play = next.links.find((x) => storeOf(x._href) === 'android');
+      if (!play) continue;
+      const body = JSON.parse((await next.click(play)).beaconBodies[0]);
+      eq([body.src, body.ad, body.cmp], ['ads', t.ad, t.cmp], `不正な値（${t.label}）で着地して ${target.pathname} へ移った先の本文`);
+      for (const x of next.links.filter((y) => storeOf(y._href) === 'ios')) {
+        eq(new URL(x._href).searchParams.get('ct'), 'ads_' + t.ad, `不正な値（${t.label}）の移った先の ct`);
+      }
+      followed++;
+    }
+    assert.ok(followed > 0, `不正な値（${t.label}）: 移った先で確かめたページが 1 つも無い`);
   }
 
   // --- ストアリンクを持つ全ページ：広告と自然流入の 2 通り --------------------
