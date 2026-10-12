@@ -1738,6 +1738,12 @@ body.legal-page::before {
   }
 }
 
+@media (max-width: 1040px) {
+  .legal-nav-links:has(.language-switch) > a {
+    display: none;
+  }
+}
+
 @media (max-width: 920px) {
   .hero-phone {
     width: 210px;
